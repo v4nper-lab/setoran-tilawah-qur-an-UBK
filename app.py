@@ -171,7 +171,7 @@ def get_prayer_times():
 
 timings, readable_date = get_prayer_times()
 
-# Styling Modern Glassmorphism & Emerald Theme dengan Judul Baru
+# Styling Modern Glassmorphism & Emerald Theme (Dengan Ikon Mushaf Al-Qur'an di Header)
 st.markdown(
     """
     <style>
@@ -215,9 +215,16 @@ st.markdown(
     }
     </style>
     <div class="header-card">
-        <div class="brand-tag">PROGRAM CINTA AL-QUR'AN</div>
-        <div class="hero-title">Setoran Tilawah<br>Al-Qur'an</div>
-        <div class="hero-sub">Masjid Jami' Umar Bin Khottob</div>
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <div class="brand-tag">PROGRAM CINTA AL-QUR'AN</div>
+                <div class="hero-title">Setoran Tilawah<br>Al-Qur'an</div>
+                <div class="hero-sub">Masjid Jami' Umar Bin Khottob</div>
+            </div>
+            <div style="font-size: 52px; background: rgba(255, 255, 255, 0.15); padding: 12px 16px; border-radius: 16px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); line-height: 1;">
+                📖
+            </div>
+        </div>
     </div>
 """,
     unsafe_allow_html=True,
