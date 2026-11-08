@@ -153,14 +153,12 @@ if "tilawah_entries" not in st.session_state:
   st.session_state.tilawah_entries = load_data()
 
 
-# API Pengambilan Jadwal Sholat Otomatis Berdasarkan Koordinat Rancaekek, Kab. Bandung
+# API Pengambilan Jadwal Sholat Otomatis (Rancaekek, Kab. Bandung)
 @st.cache_data(ttl=1800)
 def get_prayer_times():
   try:
-    # Koordinat akurat wilayah Rancaekek, Kabupaten Bandung, Jawa Barat
     lat = -6.9603
     lon = 107.7675
-    # Method 20 = Kemenag RI (Kementerian Agama Republik Indonesia)
     url = f"https://api.aladhan.com/v1/timings/today?latitude={lat}&longitude={lon}&method=20"
     res = requests.get(url, timeout=5)
     if res.status_code == 200:
@@ -173,7 +171,7 @@ def get_prayer_times():
 
 timings, readable_date = get_prayer_times()
 
-# Styling Modern Glassmorphism & Emerald Theme
+# Styling Modern Glassmorphism & Emerald Theme dengan Judul Baru
 st.markdown(
     """
     <style>
@@ -185,8 +183,8 @@ st.markdown(
         box-shadow: 0 10px 25px -5px rgba(6, 95, 70, 0.3);
         margin-bottom: 20px;
     }
-    .brand-tag { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700; opacity: 0.85; background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 20px; display: inline-block; margin-bottom: 8px;}
-    .hero-title { font-size: 28px; font-weight: 800; line-height: 1.2; margin: 4px 0; }
+    .brand-tag { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; opacity: 0.9; margin-bottom: 6px;}
+    .hero-title { font-size: 28px; font-weight: 800; line-height: 1.15; margin: 4px 0 8px 0; }
     .hero-sub { font-size: 15px; opacity: 0.9; font-weight: 400; }
     .prayer-box {
         background: #f0fdf4;
@@ -217,9 +215,9 @@ st.markdown(
     }
     </style>
     <div class="header-card">
-        <div class="brand-tag">Masjid Jami' Umar Bin Khottob</div>
-        <div class="hero-title">📖 Portal Setoran Tilawah & Tahfidz</div>
-        <div class="hero-sub">Sekretariat & Pencatatan Hafalan Jamaah Harian</div>
+        <div class="brand-tag">PROGRAM CINTA AL-QUR'AN</div>
+        <div class="hero-title">Setoran Tilawah<br>Al-Qur'an</div>
+        <div class="hero-sub">Masjid Jami' Umar Bin Khottob</div>
     </div>
 """,
     unsafe_allow_html=True,
