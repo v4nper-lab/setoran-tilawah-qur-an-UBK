@@ -316,7 +316,6 @@ def generate_pdf(rekap_df):
       "C",
   )
 
-  # Mengonversi output FPDF ke bytes agar aman untuk st.download_button
   return bytes(pdf.output())
 
 
@@ -331,7 +330,7 @@ st.markdown(
         border-radius: 24px;
         box-shadow: 0 12px 30px -5px rgba(6, 95, 70, 0.4);
         margin-bottom: 20px;
-    }}
+    }
     .brand-tag {{ 
         font-size: 13px; 
         letter-spacing: 0.12em; 
@@ -612,7 +611,10 @@ with tab_pengurus:
 
   admin_pin_rahasia = st.secrets.get("ADMIN_PIN", "1234")
 
-  pin = st.text_input("PIN Pengurus", placeholder="Masukkan PIN 1234")
+  # Input PIN dikembalikan menggunakan type="password" (titik-titik / tersembunyi)
+  pin = st.text_input(
+      "PIN Pengurus", type="password", placeholder="Masukkan PIN 1234"
+  )
 
   if st.button("Buka Panel Pengurus"):
     if pin == admin_pin_rahasia:
@@ -646,26 +648,20 @@ with tab_pengurus:
 
       st.markdown("### 📊 Rekapitulasi & Progress (Target 1 Hari 1 Juz)")
 
-      # Menghitung rekap per jamaah beserta estimasi total juz dan target 1 hari 1 juz
       rekap_list = []
       for nama_j, group in df.groupby("nama"):
         jml_setoran = len(group)
         last_dt = group["tanggal"].max()
         first_dt = group["tanggal"].min()
 
-        # Hitung total perkiraan juz berdasarkan bobot jumlah bacaan
         total_juz = sum(
             group["jumlah"].map(JUZ_WEIGHTS).fillna(0.1)
         )
-
-        # Hitung target hari aktif (selisih hari dari setoran pertama sampai hari ini, min 1 hari)
         days_active = max(
             1,
             (datetime.now().date() - pd.to_datetime(first_dt).date()).days + 1,
         )
-        target_juz = float(
-            days_active * 1.0
-        )  # Target 1 Juz per hari aktif
+        target_juz = float(days_active * 1.0)
 
         persen = min(int((total_juz / target_juz) * 100), 100)
         rekap_list.append({
@@ -743,7 +739,7 @@ with tab_pengurus:
 
       st.markdown("### 📁 Daftar Log Seluruh Setoran Masuk")
       for e in entries:
-        catatan_str = f" · Catatan: {e['catatan']}" if e["catatan"] else ""
+        catatan_str = f" · Catatan: {e['catatan']}" if e['catatan'] else ""
         st.markdown(
             f"""
             <div style="border: 1px solid #dce8df; padding: 12px; border-radius: 10px; margin-bottom: 8px; background: white;">
