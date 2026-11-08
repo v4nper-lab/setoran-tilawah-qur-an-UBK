@@ -155,7 +155,7 @@ if "tilawah_entries" not in st.session_state:
   st.session_state.tilawah_entries = load_data()
 
 
-# Fungsi membaca gambar lokal
+# Fungsi membaca gambar lokal (Quran & Masjid)
 def get_img_as_base64(file_path):
   if os.path.exists(file_path):
     with open(file_path, "rb") as f:
@@ -164,15 +164,27 @@ def get_img_as_base64(file_path):
   return ""
 
 
-img_base64 = get_img_as_base64("quran.jpg")
-if not img_base64:
-  img_base64 = get_img_as_base64("quran.png")
+img_quran_base64 = get_img_as_base64("quran.jpg")
+if not img_quran_base64:
+  img_quran_base64 = get_img_as_base64("quran.png")
 
-# Ukuran gambar besar & proporsional
-if img_base64:
-  image_html = f'<img src="data:image/jpeg;base64,{img_base64}" style="width: 85px; height: 115px; object-fit: cover; border-radius: 12px; box-shadow: 0 6px 15px rgba(0,0,0,0.3);" alt="Quran">'
+img_masjid_base64 = get_img_as_base64("masjid.jpg")
+if not img_masjid_base64:
+  img_masjid_base64 = get_img_as_base64("masjid.png")
+
+# HTML tag untuk gambar Quran di sebelah kanan
+if img_quran_base64:
+  image_html = f'<img src="data:image/jpeg;base64,{img_quran_base64}" style="width: 85px; height: 115px; object-fit: cover; border-radius: 12px; box-shadow: 0 6px 15px rgba(0,0,0,0.3);" alt="Quran">'
 else:
   image_html = '<span style="font-size: 70px;">📖</span>'
+
+# CSS Background Masjid dengan gradasi hijau transparan agar teks tetap sangat jelas dibaca
+if img_masjid_base64:
+  header_bg_css = f"linear-gradient(135deg, rgba(6, 78, 59, 0.92) 0%, rgba(6, 95, 70, 0.88) 50%, rgba(4, 120, 87, 0.92) 100%), url('data:image/jpeg;base64,{img_masjid_base64}')"
+else:
+  header_bg_css = (
+      "linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%)"
+  )
 
 
 # API Jadwal Sholat (Rancaekek, Kab. Bandung)
@@ -194,7 +206,7 @@ def get_prayer_times():
 timings, readable_date = get_prayer_times()
 
 
-# Kelas Generator PDF Laporan Rekapitulasi
+# Generator Laporan PDF
 class PDFReport(FPDF):
 
   def header(self):
@@ -221,7 +233,6 @@ class PDFReport(FPDF):
         "C",
     )
     self.ln(4)
-    # Garis pemisah
     self.set_draw_color(6, 78, 59)
     self.set_line_width(0.8)
     self.line(10, self.get_y(), 200, self.get_y())
@@ -246,9 +257,8 @@ def generate_pdf(rekap_df):
   pdf.add_page()
   pdf.set_auto_page_break(auto=True, margin=15)
 
-  # Tabel Header
   pdf.set_font("helvetica", "B", 10)
-  pdf.set_fill_color(6, 78, 59)  # Warna hijau emerald khas masjid
+  pdf.set_fill_color(6, 78, 59)
   pdf.set_text_color(255, 255, 255)
 
   pdf.cell(15, 8, "No", 1, 0, "C", True)
@@ -256,12 +266,10 @@ def generate_pdf(rekap_df):
   pdf.cell(35, 8, "Total Setoran", 1, 0, "C", True)
   pdf.cell(55, 8, "Setoran Terakhir", 1, 1, "C", True)
 
-  # Isi Tabel
   pdf.set_font("helvetica", "", 10)
   pdf.set_text_color(0, 0, 0)
 
   for idx, row in rekap_df.iterrows():
-    # Selang-seling warna baris agar rapi
     fill = idx % 2 == 1
     if fill:
       pdf.set_fill_color(240, 253, 244)
@@ -274,7 +282,6 @@ def generate_pdf(rekap_df):
     pdf.cell(55, 7, str(row["Setoran_Terakhir"]), 1, 1, "C", True)
 
   pdf.ln(10)
-  # Catatan / Pesan Motivasi di bawah PDF
   pdf.set_font("helvetica", "I", 9)
   pdf.set_text_color(50, 50, 50)
   pdf.multi_cell(
@@ -292,60 +299,63 @@ def generate_pdf(rekap_df):
   return pdf.output()
 
 
-# 1. Styling CSS Judul Besar & Elegan
+# Styling CSS dengan Background Gambar Masjid UBK
 st.markdown(
-    """
+    f"""
     <style>
-    .header-card {
-        background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%);
+    .header-card {{
+        background: {header_bg_css};
+        background-size: cover;
+        background-position: center;
         color: white;
         padding: 34px 28px;
         border-radius: 24px;
         box-shadow: 0 12px 30px -5px rgba(6, 95, 70, 0.4);
         margin-bottom: 20px;
-    }
-    .brand-tag { 
+    }}
+    .brand-tag {{ 
         font-size: 13px; 
         letter-spacing: 0.12em; 
         text-transform: uppercase; 
         font-weight: 700; 
         opacity: 0.95; 
-        background: rgba(255,255,255,0.18); 
+        background: rgba(255,255,255,0.22); 
         padding: 5px 14px; 
         border-radius: 20px; 
         display: inline-block;
         margin-bottom: 10px; 
-    }
-    .hero-title { 
+    }}
+    .hero-title {{ 
         font-size: 34px; 
         font-weight: 800; 
         line-height: 1.15; 
         margin: 6px 0 10px 0; 
         font-family: 'Cinzel', 'Trajan Pro', 'Georgia', serif;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.25);
-    }
-    .hero-sub { 
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }}
+    .hero-sub {{ 
         font-size: 16px; 
         opacity: 0.95; 
         font-weight: 500; 
         letter-spacing: 0.02em;
-    }
-    .prayer-box {
+        text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }}
+    .prayer-box {{
         background: #f0fdf4;
         border: 1px solid #bbf7d0;
         padding: 14px 18px;
         border-radius: 16px;
         margin-bottom: 20px;
-    }
-    .daily-box {
+    }}
+    .daily-box {{
         background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
         border: 1px solid #fde68a;
         padding: 16px 20px;
         border-radius: 16px;
         margin-bottom: 20px;
         color: #78350f;
-    }
-    .stButton>button {
+    }}
+    .stButton>button {{
         background: #059669;
         color: white;
         font-weight: 700;
@@ -353,16 +363,16 @@ st.markdown(
         height: 50px;
         border: none;
         box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
-    }
-    .stButton>button:hover {
+    }}
+    .stButton>button:hover {{
         background: #047857;
-    }
+    }}
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-# 2. Banner Header Utama
+# Banner Header Utama
 st.markdown(
     f"""
     <div class="header-card">
@@ -372,7 +382,7 @@ st.markdown(
                 <div class="hero-title">Setoran Tilawah<br>Al-Qur'an</div>
                 <div class="hero-sub">Masjid Jami' Umar Bin Khottob</div>
             </div>
-            <div style="background: rgba(255, 255, 255, 0.15); padding: 10px; border-radius: 16px; box-shadow: inset 0 2px 6px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center;">
+            <div style="background: rgba(255, 255, 255, 0.2); padding: 10px; border-radius: 16px; box-shadow: inset 0 2px 6px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center;">
                 {image_html}
             </div>
         </div>
@@ -648,7 +658,7 @@ with tab_pengurus:
 
       st.divider()
 
-      # Tombol Download Laporan PDF untuk Print Out / Share Grup WA
+      # Tombol Cetak / Unduh Laporan PDF
       st.markdown("### 🖨️ Cetak & Unduh Laporan PDF")
       st.markdown(
           '<p style="font-size: 13px; color: #62736a;">Unduh laporan'
