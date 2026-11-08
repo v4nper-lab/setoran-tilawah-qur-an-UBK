@@ -453,7 +453,11 @@ with tab_pengurus:
 
   admin_pin_rahasia = st.secrets.get("ADMIN_PIN", "1234")
 
-  pin = st.text_input("PIN Pengurus", type="password")
+  **Menjadi seperti ini (tanpa `type="password"`):**
+   ```python
+   pin = st.text_input(
+       "PIN Pengurus (Ketik: 1234)", placeholder="Masukkan PIN 1234"
+   )
   if st.button("Buka Panel Pengurus"):
     if pin == admin_pin_rahasia:
       st.session_state["admin_logged"] = True
