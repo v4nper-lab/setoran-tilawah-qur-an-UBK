@@ -153,11 +153,15 @@ if "tilawah_entries" not in st.session_state:
   st.session_state.tilawah_entries = load_data()
 
 
-# API Pengambilan Jadwal Sholat Otomatis (Bandung & Sekitarnya)
+# API Pengambilan Jadwal Sholat Otomatis Berdasarkan Koordinat Rancaekek, Kab. Bandung
 @st.cache_data(ttl=1800)
 def get_prayer_times():
   try:
-    url = "https://api.aladhan.com/v1/timingsByCity?city=Bandung&country=Indonesia&method=20"
+    # Koordinat akurat wilayah Rancaekek, Kabupaten Bandung, Jawa Barat
+    lat = -6.9603
+    lon = 107.7675
+    # Method 20 = Kemenag RI (Kementerian Agama Republik Indonesia)
+    url = f"https://api.aladhan.com/v1/timings/today?latitude={lat}&longitude={lon}&method=20"
     res = requests.get(url, timeout=5)
     if res.status_code == 200:
       data = res.json()
@@ -221,13 +225,13 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Widget Jadwal Sholat
+# Widget Jadwal Sholat Rancaekek & Kab. Bandung
 if timings:
   st.markdown(
       f"""
     <div class="prayer-box">
         <div style="font-size: 13px; font-weight: 700; color: #166534; margin-bottom: 6px; display: flex; justify-content: space-between;">
-            <span>📍 Jadwal Sholat Hari Ini (Bandung & Sekitarnya)</span>
+            <span>📍 Jadwal Sholat Hari Ini (Rancaekek & Kab. Bandung)</span>
             <span style="font-weight: 400; opacity: 0.8;">{readable_date}</span>
         </div>
         <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; text-align: center; font-size: 13px;">
@@ -369,7 +373,7 @@ with tab_jamaah:
 
   st.divider()
 
-  # Riwayat Setoran Pribadi dengan Indikator Progress
+  # Riwayat Setoran Pribadi
   st.subheader("📋 Riwayat Setoran Saya")
   filter_nama = st.text_input(
       "Ketik nama Anda untuk melihat riwayat setoran",
@@ -388,7 +392,6 @@ with tab_jamaah:
     if not filtered:
       st.warning("Belum ada data setoran ditemukan dengan nama tersebut.")
     else:
-      # Tampilkan ringkasan pencapaian pribadi
       total_pribadi = len(filtered)
       st.success(
           f"✨ **{filter_nama.strip()}** telah mencatatkan **{total_pribadi}x**"
@@ -410,13 +413,11 @@ with tab_jamaah:
 with tab_pengurus:
   st.subheader("🔐 Panel Pengurus Masjid")
   st.markdown(
-      '<p style="font-size: 13px; color: #62736a;">Masukkan PIN aman'
-      " (tersimpan di brankas sistem) untuk membuka rekapitulasi data dan"
-      " grafik.</p>",
+      '<p style="font-size: 13px; color: #62736a;">Masukkan PIN'
+      " pengurus untuk membuka rekapitulasi data dan grafik.</p>",
       unsafe_allow_html=True,
   )
 
-  # Mengambil PIN dari secrets Streamlit Cloud atau default '1234'
   admin_pin_rahasia = st.secrets.get("ADMIN_PIN", "1234")
 
   pin = st.text_input("PIN Pengurus", type="password")
@@ -434,7 +435,6 @@ with tab_pengurus:
     total_setoran = len(entries)
     total_jamaah = len(set(e["nama"].lower() for e in entries))
 
-    # Metric Dashboard
     col1, col2 = st.columns(2)
     with col1:
       st.metric(label="Total Seluruh Setoran", value=total_setoran)
@@ -446,19 +446,12 @@ with tab_pengurus:
 
       st.markdown("---")
       st.markdown("### 📈 Grafik Statistik Setoran per Jamaah")
-      # Membuat data untuk grafik batang (jumlah setoran per jamaah)
-      chart_data = (
-          df["nama"].value_counts().reset_index()
-      )  # Menggunakan pandas modern tanpa parameter deprecated
+      chart_data = df["nama"].value_counts().reset_index()
       chart_data.columns = ["Nama Jamaah", "Jumlah Setoran"]
       chart_data = chart_data.set_index("Nama Jamaah")
-
-      # Menampilkan grafik batang interaktif Streamlit
       st.bar_chart(chart_data)
 
       st.markdown("### 📊 Rekapitulasi & Persentase Progress Jamaah")
-
-      # Menghitung rekap dan persentase kontribusi terhadap total setoran
       rekap_jamaah = (
           df.groupby("nama")
           .agg(
@@ -468,18 +461,11 @@ with tab_pengurus:
           .reset_index()
       )
 
-      max_setoran = (
-          rekap_jamaah["Jumlah_Setoran"].max() if not rekap_jamaah.empty else 1
-      )
-
+      target_ideal = 20
       for idx, row in rekap_jamaah.iterrows():
         nama_j = row["nama"]
         jml = row["Jumlah_Setoran"]
         last_dt = row["Setoran_Terakhir"]
-
-        # Hitung estimasi persentase relatif (misal target maksimal atau proporsi)
-        # Atau persentase pencapaian terhadap target fleksibel (misal target 20 setoran = 100%)
-        target_ideal = 20
         persen = min(int((jml / target_ideal) * 100), 100)
 
         st.markdown(
@@ -488,11 +474,9 @@ with tab_pengurus:
         )
         st.progress(persen / 100.0)
 
-      # Tabel Rekap Lengkap
       with st.expander("📋 Lihat Tabel Rekap Detail"):
         st.dataframe(rekap_jamaah, use_container_width=True, hide_index=True)
 
-      # Expander Detail per Jamaah
       with st.expander("🔍 Lihat Detail Riwayat Spesifik Per Jamaah"):
         pilih_jamaah = st.selectbox(
             "Pilih Nama Jamaah", sorted(df["nama"].unique())
@@ -507,7 +491,6 @@ with tab_pengurus:
 
       st.divider()
 
-      # Tombol Ekspor CSV
       csv = df.to_csv(index=False).encode("utf-8")
       st.download_button(
           label="📥 Unduh Rekap Laporan Excel (CSV)",
@@ -516,7 +499,6 @@ with tab_pengurus:
           mime="text/csv",
       )
 
-      # Tombol Hapus Data
       if st.button("🗑️ Hapus Seluruh Data Di Perangkat Ini", type="primary"):
         st.session_state.tilawah_entries = []
         save_data([])
