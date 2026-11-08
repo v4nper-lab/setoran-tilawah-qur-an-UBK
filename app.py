@@ -319,19 +319,18 @@ def generate_pdf(rekap_df):
   return bytes(pdf.output())
 
 
-# 1. Styling CSS dengan Background Masjid di Header
+# 1. Styling CSS murni (Tanpa f-string agar aman dari error kurung kurawal)
 st.markdown(
-    f"""
+    """
     <style>
-    .header-card {{
-        {header_bg_style}
+    .header-card {
         color: white;
         padding: 34px 28px;
         border-radius: 24px;
         box-shadow: 0 12px 30px -5px rgba(6, 95, 70, 0.4);
         margin-bottom: 20px;
     }
-    .brand-tag {{ 
+    .brand-tag { 
         font-size: 13px; 
         letter-spacing: 0.12em; 
         text-transform: uppercase; 
@@ -342,38 +341,38 @@ st.markdown(
         border-radius: 20px; 
         display: inline-block;
         margin-bottom: 10px; 
-    }}
-    .hero-title {{ 
+    }
+    .hero-title { 
         font-size: 34px; 
         font-weight: 800; 
         line-height: 1.15; 
         margin: 6px 0 10px 0; 
         font-family: 'Cinzel', 'Trajan Pro', 'Georgia', serif;
         text-shadow: 0 2px 6px rgba(0,0,0,0.4);
-    }}
-    .hero-sub {{ 
+    }
+    .hero-sub { 
         font-size: 16px; 
         opacity: 0.95; 
         font-weight: 500; 
         letter-spacing: 0.02em;
         text-shadow: 0 1px 3px rgba(0,0,0,0.3);
-    }}
-    .prayer-box {{
+    }
+    .prayer-box {
         background: #f0fdf4;
         border: 1px solid #bbf7d0;
         padding: 14px 18px;
         border-radius: 16px;
         margin-bottom: 20px;
-    }}
-    .daily-box {{
+    }
+    .daily-box {
         background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
         border: 1px solid #fde68a;
         padding: 16px 20px;
         border-radius: 16px;
         margin-bottom: 20px;
         color: #78350f;
-    }}
-    .stButton>button {{
+    }
+    .stButton>button {
         background: #059669;
         color: white;
         font-weight: 700;
@@ -381,19 +380,19 @@ st.markdown(
         height: 50px;
         border: none;
         box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
-    }}
-    .stButton>button:hover {{
+    }
+    .stButton>button:hover {
         background: #047857;
-    }}
+    }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-# 2. Banner Header Utama
+# 2. Banner Header Utama dengan Background Masjid
 st.markdown(
     f"""
-    <div class="header-card">
+    <div class="header-card" style="{header_bg_style}">
         <div style="display: flex; align-items: center; justify-content: space-between;">
             <div>
                 <div class="brand-tag">PROGRAM CINTA AL-QUR'AN</div>
@@ -611,7 +610,7 @@ with tab_pengurus:
 
   admin_pin_rahasia = st.secrets.get("ADMIN_PIN", "1234")
 
-  # Input PIN dikembalikan menggunakan type="password" (titik-titik / tersembunyi)
+  # Input PIN tersembunyi (titik-titik / password)
   pin = st.text_input(
       "PIN Pengurus", type="password", placeholder="Masukkan PIN 1234"
   )
@@ -676,8 +675,8 @@ with tab_pengurus:
 
       for idx, row in rekap_jamaah.iterrows():
         st.markdown(
-            f"**{row['nama']}** — {row['Jumlah_Setoran']} setoran (Est. "
-            f"**{row['Total_Juz']:.2f} Juz** dari Target 1 Hari 1 Juz) —"
+            f"**{row['nama']}** — {row['Jumlah_Setoran']} setoran (Est."
+            f" **{row['Total_Juz']:.2f} Juz** dari Target 1 Hari 1 Juz) —"
             f" Pencapaian: **{row['Persen']}%**"
         )
         st.progress(row["Persen"] / 100.0)
@@ -739,7 +738,7 @@ with tab_pengurus:
 
       st.markdown("### 📁 Daftar Log Seluruh Setoran Masuk")
       for e in entries:
-        catatan_str = f" · Catatan: {e['catatan']}" if e['catatan'] else ""
+        catatan_str = f" · Catatan: {e['catatan']}" if e["catatan"] else ""
         st.markdown(
             f"""
             <div style="border: 1px solid #dce8df; padding: 12px; border-radius: 10px; margin-bottom: 8px; background: white;">
