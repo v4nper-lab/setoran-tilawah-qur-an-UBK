@@ -2,6 +2,7 @@ import base64
 import json
 import os
 from datetime import datetime
+from fpdf import FPDF
 import pandas as pd
 import requests
 import streamlit as st
@@ -167,7 +168,7 @@ img_base64 = get_img_as_base64("quran.jpg")
 if not img_base64:
   img_base64 = get_img_as_base64("quran.png")
 
-# Ukuran gambar diperbesar (format portrait/langsing yang menonjol)
+# Ukuran gambar besar & proporsional
 if img_base64:
   image_html = f'<img src="data:image/jpeg;base64,{img_base64}" style="width: 85px; height: 115px; object-fit: cover; border-radius: 12px; box-shadow: 0 6px 15px rgba(0,0,0,0.3);" alt="Quran">'
 else:
@@ -192,7 +193,106 @@ def get_prayer_times():
 
 timings, readable_date = get_prayer_times()
 
-# 1. Styling CSS dengan Judul yang Lebih Besar, Elegan & Jelas
+
+# Kelas Generator PDF Laporan Rekapitulasi
+class PDFReport(FPDF):
+
+  def header(self):
+    self.set_font("helvetica", "B", 13)
+    self.cell(
+        0, 7, "MASJID JAMI' UMAR BIN KHOTTOB - RANCAEKEK", 0, 1, "C"
+    )
+    self.set_font("helvetica", "", 10)
+    self.cell(
+        0,
+        5,
+        "Laporan Rekapitulasi Progress Setoran Tilawah & Tahfidz Jamaah",
+        0,
+        1,
+        "C",
+    )
+    self.set_font("helvetica", "I", 8)
+    self.cell(
+        0,
+        5,
+        f"Periode Cetak: {datetime.now().strftime('%d %B %Y')}",
+        0,
+        1,
+        "C",
+    )
+    self.ln(4)
+    # Garis pemisah
+    self.set_draw_color(6, 78, 59)
+    self.set_line_width(0.8)
+    self.line(10, self.get_y(), 200, self.get_y())
+    self.ln(6)
+
+  def footer(self):
+    self.set_y(-15)
+    self.set_font("helvetica", "I", 8)
+    self.set_text_color(100, 100, 100)
+    self.cell(
+        0,
+        10,
+        f"Program Cinta Al-Qur'an UBK © 2026 | Halaman {self.page_no()}",
+        0,
+        0,
+        "C",
+    )
+
+
+def generate_pdf(rekap_df):
+  pdf = PDFReport()
+  pdf.add_page()
+  pdf.set_auto_page_break(auto=True, margin=15)
+
+  # Tabel Header
+  pdf.set_font("helvetica", "B", 10)
+  pdf.set_fill_color(6, 78, 59)  # Warna hijau emerald khas masjid
+  pdf.set_text_color(255, 255, 255)
+
+  pdf.cell(15, 8, "No", 1, 0, "C", True)
+  pdf.cell(85, 8, "Nama Jamaah", 1, 0, "L", True)
+  pdf.cell(35, 8, "Total Setoran", 1, 0, "C", True)
+  pdf.cell(55, 8, "Setoran Terakhir", 1, 1, "C", True)
+
+  # Isi Tabel
+  pdf.set_font("helvetica", "", 10)
+  pdf.set_text_color(0, 0, 0)
+
+  for idx, row in rekap_df.iterrows():
+    # Selang-seling warna baris agar rapi
+    fill = idx % 2 == 1
+    if fill:
+      pdf.set_fill_color(240, 253, 244)
+    else:
+      pdf.set_fill_color(255, 255, 255)
+
+    pdf.cell(15, 7, str(idx + 1), 1, 0, "C", True)
+    pdf.cell(85, 7, str(row["nama"]), 1, 0, "L", True)
+    pdf.cell(35, 7, str(row["Jumlah_Setoran"]) + "x", 1, 0, "C", True)
+    pdf.cell(55, 7, str(row["Setoran_Terakhir"]), 1, 1, "C", True)
+
+  pdf.ln(10)
+  # Catatan / Pesan Motivasi di bawah PDF
+  pdf.set_font("helvetica", "I", 9)
+  pdf.set_text_color(50, 50, 50)
+  pdf.multi_cell(
+      0,
+      5,
+      (
+          '"Sebaik-baik kalian adalah orang yang mempelajari Al-Qur\'an dan'
+          ' mengajarkannya." (HR. Bukhari)\nTerus istiqomah membersamai'
+          " Al-Qur'an setiap hari demi meraih syafaat di hari kiamat."
+      ),
+      0,
+      "C",
+  )
+
+  return pdf.output()
+
+
+# 1. Styling CSS Judul Besar & Elegan
 st.markdown(
     """
     <style>
@@ -262,7 +362,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 2. Banner Header Utama dengan Gambar Diperbesar
+# 2. Banner Header Utama
 st.markdown(
     f"""
     <div class="header-card">
@@ -302,7 +402,7 @@ if timings:
       unsafe_allow_html=True,
   )
 
-# Motivasi Harian Otomatis
+# Motivasi Harian
 DAILY_UPDATES = [
     (
         "💡 Motivasi Hari Ini",
@@ -319,7 +419,7 @@ DAILY_UPDATES = [
         ),
     ),
     (
-        "🌟 Semangat Tahfidz",
+        "Semangat Para Pejuang Tilawah Qur'an",
         (
             "\"Orang yang mahir membaca Al-Qur'an bersama para malaikat yang"
             ' mulia lagi taat...\" (HR. Muslim)'
@@ -348,7 +448,7 @@ update_title, update_text = DAILY_UPDATES[day_index]
 st.markdown(
     f"""
 <div class="daily-box">
-    <div style="font-weight: 700; font-size: 14px; margin-bottom: 4px;">{update_title} (Update Otomatis Harian)</div>
+    <div style="font-weight: 700; font-size: 14px; margin-bottom: 4px;">{update_title}</div>
     <div style="font-size: 14px; line-height: 1.4;"><i>{update_text}</i></div>
 </div>
 """,
@@ -540,7 +640,7 @@ with tab_pengurus:
         )
         detail_jamaah = df[df["nama"] == pilih_jamaah]
         for idx, row in detail_jamaah.iterrows():
-          catatan_str = f" · Catatan: {row['catatan']}" if row["catatan"] else ""
+          catatan_str = f" · Catatan: {row['catatan']}" if row['catatan'] else ""
           st.markdown(
               f"- 📅 **{row['tanggal']}** | Surat **{row['surat']}** (Ayat"
               f" {row['awal']}–{row['akhir']}) - *{row['jumlah']}*{catatan_str}"
@@ -548,6 +648,28 @@ with tab_pengurus:
 
       st.divider()
 
+      # Tombol Download Laporan PDF untuk Print Out / Share Grup WA
+      st.markdown("### 🖨️ Cetak & Unduh Laporan PDF")
+      st.markdown(
+          '<p style="font-size: 13px; color: #62736a;">Unduh laporan'
+          " rekapitulasi progress jamaah dalam format PDF untuk dicetak atau"
+          " dibagikan mingguan/harian ke grup WhatsApp.</p>",
+          unsafe_allow_html=True,
+      )
+
+      pdf_bytes = generate_pdf(rekap_jamaah)
+      st.download_button(
+          label="📄 Unduh Laporan Rekap PDF",
+          data=pdf_bytes,
+          file_name=(
+              f"Laporan_Tilawah_UBK_{datetime.now().strftime('%Y-%m-%d')}.pdf"
+          ),
+          mime="application/pdf",
+      )
+
+      st.markdown("---")
+
+      # Tombol Ekspor CSV
       csv = df.to_csv(index=False).encode("utf-8")
       st.download_button(
           label="📥 Unduh Rekap Laporan Excel (CSV)",
@@ -556,6 +678,7 @@ with tab_pengurus:
           mime="text/csv",
       )
 
+      # Tombol Hapus Data
       if st.button("🗑️ Hapus Seluruh Data Di Perangkat Ini", type="primary"):
         st.session_state.tilawah_entries = []
         save_data([])
@@ -564,7 +687,7 @@ with tab_pengurus:
 
       st.markdown("### 📁 Daftar Log Seluruh Setoran Masuk")
       for e in entries:
-        catatan_str = f" · Catatan: {e['catatan']}" if e["catatan"] else ""
+        catatan_str = f" · Catatan: {e['catatan']}" if e['catatan'] else ""
         st.markdown(
             f"""
             <div style="border: 1px solid #dce8df; padding: 12px; border-radius: 10px; margin-bottom: 8px; background: white;">
