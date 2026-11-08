@@ -2,11 +2,14 @@ import json
 import os
 from datetime import datetime
 import pandas as pd
+import requests
 import streamlit as st
 
 # Konfigurasi halaman
 st.set_page_config(
-    page_title="Setoran Tilawah Al-Qur'an", page_icon="📖", layout="centered"
+    page_title="Setoran Tilawah Al-Qur'an - Masjid UBK",
+    page_icon="📖",
+    layout="centered",
 )
 
 # File penyimpanan data lokal
@@ -149,71 +152,180 @@ def save_data(data):
 if "tilawah_entries" not in st.session_state:
   st.session_state.tilawah_entries = load_data()
 
-# Styling Header
+
+# API Pengambilan Jadwal Sholat Otomatis (Wilayah Bandung & Sekitarnya)
+@st.cache_data(ttl=1800)  # Refresh cache tiap 30 menit
+def get_prayer_times():
+  try:
+    url = "https://api.aladhan.com/v1/timingsByCity?city=Bandung&country=Indonesia&method=20"
+    res = requests.get(url, timeout=5)
+    if res.status_code == 200:
+      data = res.json()
+      return data["data"]["timings"], data["data"]["date"]["readable"]
+  except:
+    return None, None
+  return None, None
+
+
+timings, readable_date = get_prayer_times()
+
+# Modern UI Styling (CSS Modern Glassmorphism & Emerald Theme)
 st.markdown(
     """
     <style>
-    .header-box {
-        background: linear-gradient(135deg, #10472e, #1e754b);
+    .header-card {
+        background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%);
         color: white;
-        padding: 24px 18px;
-        border-radius: 16px;
+        padding: 28px 24px;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px -5px rgba(6, 95, 70, 0.3);
         margin-bottom: 20px;
     }
-    .brand { font-size: 13px; opacity: 0.9; font-weight: 700; letter-spacing: 0.08em; }
-    .hero { font-size: 26px; font-weight: 800; line-height: 1.15; margin: 6px 0; }
-    .sub { font-size: 15px; opacity: 0.9; }
-    .notice {
-        background: #fff8e6;
-        border: 1px solid #f0dfaa;
-        padding: 12px;
+    .brand-tag { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700; opacity: 0.85; background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 20px; display: inline-block; margin-bottom: 8px;}
+    .hero-title { font-size: 28px; font-weight: 800; line-height: 1.2; margin: 4px 0; }
+    .hero-sub { font-size: 15px; opacity: 0.9; font-weight: 400; }
+    
+    .prayer-box {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        padding: 14px 18px;
+        border-radius: 16px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+    .daily-box {
+        background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+        border: 1px solid #fde68a;
+        padding: 16px 20px;
+        border-radius: 16px;
+        margin-bottom: 20px;
+        color: #78350f;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+    .stButton>button {
+        background: #059669;
+        color: white;
+        font-weight: 700;
         border-radius: 12px;
-        font-size: 14px;
-        color: #554400;
-        margin-bottom: 16px;
+        height: 50px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+        transition: all 0.3s ease;
+    }
+    .stButton>button:hover {
+        background: #047857;
+        box-shadow: 0 6px 15px rgba(4, 120, 87, 0.3);
     }
     </style>
-    <div class="header-box">
-        <div class="brand">PROGRAM CINTA AL-QUR'AN</div>
-        <div class="hero">Setoran Tilawah Al-Qur'an</div>
-        <div class="sub">Masjid Jami' Umar Bin Khottob</div>
+    <div class="header-card">
+        <div class="brand-tag">Masjid Jami' Umar Bin Khottob</div>
+        <div class="hero-title">📖 Portal Setoran Tilawah & Tahfidz</div>
+        <div class="hero-sub">Sekretariat & Pencatatan Hafalan Jamaah Harian</div>
     </div>
 """,
     unsafe_allow_html=True,
 )
 
+# Widget Jadwal Sholat Otomatis Berdasarkan Lokasi (Update Real-time)
+if timings:
+  st.markdown(
+      f"""
+    <div class="prayer-box">
+        <div style="font-size: 13px; font-weight: 700; color: #166534; margin-bottom: 6px; display: flex; justify-content: space-between;">
+            <span>📍 Jadwal Sholat Hari Ini (Bandung & Sekitarnya)</span>
+            <span style="font-weight: 400; opacity: 0.8;">{readable_date}</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; text-align: center; font-size: 13px;">
+            <div style="background: white; padding: 6px; border-radius: 8px; border: 1px solid #dcfce7;"><b>Subuh</b><br>{timings.get('Fajr', '-')}</div>
+            <div style="background: white; padding: 6px; border-radius: 8px; border: 1px solid #dcfce7;"><b>Dzuhur</b><br>{timings.get('Dhuhr', '-')}</div>
+            <div style="background: white; padding: 6px; border-radius: 8px; border: 1px solid #dcfce7;"><b>Ashar</b><br>{timings.get('Asr', '-')}</div>
+            <div style="background: white; padding: 6px; border-radius: 8px; border: 1px solid #dcfce7;"><b>Maghrib</b><br>{timings.get('Maghrib', '-')}</div>
+            <div style="background: white; padding: 6px; border-radius: 8px; border: 1px solid #dcfce7;"><b>Isya</b><br>{timings.get('Isha', '-')}</div>
+        </div>
+    </div>
+    """,
+      unsafe_allow_html=True,
+  )
+
+# Fitur Update Otomatis Harian (Motivasi & Ayat Berganti Otomatis Setiap Hari)
+DAILY_UPDATES = [
+    (
+        "💡 Motivasi Hari Ini",
+        (
+            "\"Sebaik-baik kalian adalah orang yang mempelajari Al-Qur'an dan"
+            ' mengajarkannya." (HR. Bukhari)'
+        ),
+    ),
+    (
+        "✨ Keutamaan Tilawah",
+        (
+            "\"Bacalah Al-Qur'an, karena ia akan datang pada hari kiamat"
+            " sebagai syafaat bagi pembacanya.\" (HR. Muslim)"
+        ),
+    ),
+    (
+        "🌟 Semangat Tahfidz",
+        (
+            "\"Orang yang mahir membaca Al-Qur'an bersama para malaikat yang"
+            ' mulia lagi taat...\" (HR. Muslim)'
+        ),
+    ),
+    (
+        "🌿 Tadabbur Harian",
+        (
+            "\"Dan bacalah Al-Qur'an dengan tartil (perlahan-lahan dan"
+            ' jelas).\" (QS. Al-Muzzammil: 4)'
+        ),
+    ),
+    (
+        "💫 Cahaya Rumah",
+        (
+            "\"Jangan jadikan rumah kalian seperti kuburan. Sesungguhnya"
+            " setan lari dari rumah yang dibacakan di dalamnya surat Al-Baqarah."
+            '" (HR. Muslim)'
+        ),
+    ),
+]
+
+# Update otomatis berdasarkan hari dalam setahun
+day_index = datetime.now().timetuple().tm_yday % len(DAILY_UPDATES)
+update_title, update_text = DAILY_UPDATES[day_index]
+
 st.markdown(
-    '<div class="notice"><b>Petunjuk:</b> Isi nama sesuai nama yang biasa'
-    " digunakan di masjid. Pilih surat dan ayat yang dibaca, lalu tekan tombol"
-    " <b>SIMPAN SETORAN</b>.</div>",
+    f"""
+<div class="daily-box">
+    <div style="font-weight: 700; font-size: 14px; margin-bottom: 4px;">{update_title} (Update Otomatis Harian)</div>
+    <div style="font-size: 14px; line-height: 1.4;"><i>{update_text}</i></div>
+</div>
+""",
     unsafe_allow_html=True,
 )
 
-# Tab menu Utama: Jamaah & Pengurus
-tab_jamaah, tab_pengurus = st.tabs(["Jamaah", "Pengurus"])
+# Tab Menu Utama
+tab_jamaah, tab_pengurus = st.tabs(["👥 Jamaah (Input Setoran)", "⚙️ Pengurus (Rekap & Data)"])
 
 with tab_jamaah:
-  st.subheader("Form Setoran Tilawah")
+  st.subheader("Form Setoran Tilawah Harian")
 
-  with st.form("form_setoran", clear_on_submit=True):
+  with st.form("form_setoran_modern", clear_on_submit=True):
     nama = st.text_input(
-        "Nama jamaah", placeholder="Contoh: Ahmad Hidayat"
+        "Nama Jamaah", placeholder="Contoh: Ahmad Hidayat"
     )
-    tanggal = st.date_input("Tanggal membaca", value=datetime.now())
+    tanggal = st.date_input("Tanggal Membaca", value=datetime.now())
     surat = st.selectbox(
-        "Surat yang dibaca", ["Pilih nama surat"] + SURAHS
+        "Surat yang Dibaca", ["Pilih Nama Surat"] + SURAHS
     )
 
     col1, col2 = st.columns(2)
     with col1:
-      awal = st.number_input("Ayat mulai", min_value=1, step=1, value=1)
+      awal = st.number_input("Ayat Mulai", min_value=1, step=1, value=1)
     with col2:
-      akhir = st.number_input("Ayat sampai", min_value=1, step=1, value=7)
+      akhir = st.number_input("Ayat Sampai", min_value=1, step=1, value=7)
 
     jumlah = st.selectbox(
-        "Jumlah bacaan",
+        "Jumlah Bacaan",
         [
-            "Pilih jumlah",
+            "Pilih Jumlah",
             "Kurang dari 1 halaman",
             "1 halaman",
             "2 halaman",
@@ -224,22 +336,21 @@ with tab_jamaah:
         ],
     )
     catatan = st.text_input(
-        "Catatan (boleh dikosongkan)",
-        placeholder="Contoh: dibaca setelah Subuh",
+        "Catatan (Opsional)", placeholder="Contoh: Dibaca setelah sholat Subuh"
     )
 
-    submitted = st.form_submit_button("SIMPAN SETORAN")
+    submitted = st.form_submit_button("🚀 SIMPAN SETORAN SEKARANG")
 
     if submitted:
       if (
           not nama.strip()
-          or surat == "Pilih nama surat"
-          or jumlah == "Pilih jumlah"
+          or surat == "Pilih Nama Surat"
+          or jumlah == "Pilih Jumlah"
           or akhir < awal
       ):
         st.error(
-            "Mohon lengkapi nama, pilih surat yang valid, rentang ayat yang"
-            " benar, dan jumlah bacaan."
+            "Mohon lengkapi Nama, Surat, Rentang Ayat yang valid, dan Jumlah"
+            " Bacaan dengan benar."
         )
       else:
         new_entry = {
@@ -255,23 +366,23 @@ with tab_jamaah:
         st.session_state.tilawah_entries.insert(0, new_entry)
         save_data(st.session_state.tilawah_entries)
         st.success(
-            "Alhamdulillah, setoran tersimpan. Barakallahu fiikum!"
+            "Alhamdulillah, setoran berhasil disimpan! Barakallahu fiikum."
         )
         st.session_state["last_nama"] = nama.strip()
         st.rerun()
 
   st.divider()
 
-  # Bagian Riwayat Setoran Saya
-  st.subheader("Riwayat Setoran Saya")
+  # Riwayat Setoran Pribadi
+  st.subheader("📋 Riwayat Setoran Saya")
   filter_nama = st.text_input(
-      "Masukkan nama untuk melihat riwayat sendiri",
+      "Ketik nama Anda untuk melihat riwayat setoran",
       value=st.session_state.get("last_nama", ""),
       key="filter_nama_input",
   )
 
   if not filter_nama.strip():
-    st.info("Riwayat setoran akan tampil di sini. Masukkan nama jamaah.")
+    st.info("Ketik nama Anda di atas untuk menampilkan riwayat setoran pribadi.")
   else:
     filtered = [
         e
@@ -279,75 +390,76 @@ with tab_jamaah:
         if e["nama"].lower() == filter_nama.strip().lower()
     ]
     if not filtered:
-      st.warning("Belum ada setoran dengan nama tersebut.")
+      st.warning("Belum ada data setoran ditemukan dengan nama tersebut.")
     else:
       for e in filtered:
         catatan_str = f" · Catatan: {e['catatan']}" if e["catatan"] else ""
         st.markdown(
             f"""
-            <div style="border: 1px solid #dce8df; padding: 12px; border-radius: 10px; margin-bottom: 8px; background: white;">
-                <strong>{e['nama']} — {e['surat']}</strong><br>
-                <span style="font-size: 14px; color: #62736a;">{e['tanggal']} · Ayat {e['awal']}–{e['akhir']} · {e['jumlah']}{catatan_str}</span>
+            <div style="border: 1px solid #dce8df; padding: 14px; border-radius: 12px; margin-bottom: 10px; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                <strong>{e['nama']} — Surat {e['surat']}</strong><br>
+                <span style="font-size: 13px; color: #62736a;">📅 {e['tanggal']} &nbsp;|&nbsp; Ayat {e['awal']}–{e['akhir']} &nbsp;|&nbsp; 📖 {e['jumlah']}{catatan_str}</span>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
 with tab_pengurus:
-  st.subheader("Halaman Pengurus")
+  st.subheader("🔐 Panel Pengurus Masjid")
   st.markdown(
-      '<p style="font-size: 14px; color: #62736a;">Masukkan PIN'
-      " <b>1234</b> untuk membuka rekapitulasi.</p>",
+      '<p style="font-size: 13px; color: #62736a;">Masukkan PIN'
+      " <b>1234</b> untuk membuka rekapitulasi data keseluruhan.</p>",
       unsafe_allow_html=True,
   )
 
-  pin = st.text_input("PIN pengurus", type="password")
-  if st.button("BUKA REKAP"):
+  pin = st.text_input("PIN Pengurus", type="password")
+  if st.button("Buka Panel Pengurus"):
     if pin == "1234":
       st.session_state["admin_logged"] = True
     else:
-      st.error("PIN salah. Gunakan 1234.")
+      st.error("PIN salah! Gunakan PIN 1234.")
       st.session_state["admin_logged"] = False
 
   if st.session_state.get("admin_logged", False):
-    st.success("Login berhasil!")
+    st.success("Akses panel pengurus diberikan.")
     entries = st.session_state.tilawah_entries
 
     total_setoran = len(entries)
     total_jamaah = len(set(e["nama"].lower() for e in entries))
 
-    c1, c2 = st.columns(2)
-    with c1:
-      st.metric("Total setoran", total_setoran)
-    with c2:
-      st.metric("Total nama jamaah", total_jamaah)
+    # Metric Dashboard Modern
+    col1, col2 = st.columns(2)
+    with col1:
+      st.metric(label="Total Seluruh Setoran", value=total_setoran)
+    with col2:
+      st.metric(label="Total Partisipasi Jamaah", value=total_jamaah)
 
     if entries:
       df = pd.DataFrame(entries)
 
-      # Fitur Rekap Hasil Setiap Jamaah
+      # Tabel Rekap Per Jamaah
       st.markdown("### 📊 Rekapitulasi Hasil Setiap Jamaah")
       rekap_jamaah = (
           df.groupby("nama")
           .agg(
-              Jumlah_Setoran=("surat", "count"),
-              Aktivitas_Terakhir=("tanggal", "max"),
+              Total_Setoran=("surat", "count"),
+              Setoran_Terakhir=("tanggal", "max"),
           )
           .reset_index()
           .rename(
               columns={
                   "nama": "Nama Jamaah",
-                  "Jumlah_Setoran": "Total Setoran",
-                  "Aktivitas_Terakhir": "Setoran Terakhir",
+                  "Total_Setoran": "Jumlah Setoran",
+                  "Setoran_Terakhir": "Aktivitas Terakhir",
               }
           )
       )
       st.dataframe(rekap_jamaah, use_container_width=True, hide_index=True)
 
       # Expander Detail per Jamaah
-      with st.expander("🔍 Lihat Detail Riwayat Per Jamaah"):
+      with st.expander("🔍 Lihat Detail Riwayat Spesifik Per Jamaah"):
         pilih_jamaah = st.selectbox(
-            "Pilih Jamaah", sorted(df["nama"].unique())
+            "Pilih Nama Jamaah", sorted(df["nama"].unique())
         )
         detail_jamaah = df[df["nama"] == pilih_jamaah]
         for idx, row in detail_jamaah.iterrows():
@@ -358,42 +470,43 @@ with tab_pengurus:
 
       st.divider()
 
+      # Tombol Ekspor CSV
       csv = df.to_csv(index=False).encode("utf-8")
       st.download_button(
-          label="UNDUH REKAP EXCEL (CSV)",
+          label="📥 Unduh Rekap Laporan Excel (CSV)",
           data=csv,
-          file_name="rekap-setoran-tilawah.csv",
+          file_name=f"rekap_tilawah_{datetime.now().strftime('%Y-%m-%d')}.csv",
           mime="text/csv",
       )
 
-      if st.button("Hapus seluruh data di perangkat ini", type="primary"):
+      # Tombol Hapus Data
+      if st.button("🗑️ Hapus Seluruh Data Di Perangkat Ini", type="primary"):
         st.session_state.tilawah_entries = []
         save_data([])
-        st.success("Seluruh data berhasil dihapus.")
+        st.success("Semua data berhasil dibersihkan.")
         st.rerun()
 
-      st.markdown("### Daftar Seluruh Setoran Masuk")
+      st.markdown("### 📁 Daftar Log Seluruh Setoran Masuk")
       for e in entries:
         catatan_str = f" · Catatan: {e['catatan']}" if e["catatan"] else ""
         st.markdown(
             f"""
             <div style="border: 1px solid #dce8df; padding: 12px; border-radius: 10px; margin-bottom: 8px; background: white;">
-                <strong>{e['nama']} — {e['surat']}</strong><br>
-                <span style="font-size: 14px; color: #62736a;">{e['tanggal']} · Ayat {e['awal']}–{e['akhir']} · {e['jumlah']}{catatan_str}</span>
+                <strong>{e['nama']} — Surat {e['surat']}</strong><br>
+                <span style="font-size: 13px; color: #62736a;">📅 {e['tanggal']} · Ayat {e['awal']}–{e['akhir']} · {e['jumlah']}{catatan_str}</span>
             </div>
             """,
             unsafe_allow_html=True,
         )
     else:
-      st.info("Belum ada data setoran.")
+      st.info("Belum ada data setoran yang masuk.")
 
-# Motivasi Tilawah sebagai Pengganti Catatan Bawah
+# Footer Estetik
 st.markdown(
     """
-    <div style="background: #e8f2eb; border: 1px solid #c8dfcf; padding: 16px; border-radius: 12px; margin-top: 35px; text-align: center; color: #145c3a;">
-        <b>💡 Motivasi Tilawah:</b><br>
-        <i>"Sebaik-baik kalian adalah orang yang mempelajari Al-Qur'an dan mengajarkannya."</i> (HR. Bukhari)<br>
-        <span style="font-size: 13px; color: #62736a; margin-top: 5px; display: block;">Semoga Allah menjadikan Al-Qur'an cahaya dalam kehidupan kita. Aamiin.</span>
+    <div style="text-align: center; color: #62736a; font-size: 13px; margin-top: 40px; padding-bottom: 20px; border-top: 1px solid #e5e7eb; padding-top: 20px;">
+        ✨ <i>Semoga Allah menjadikan Al-Qur'an sebagai cahaya dalam kehidupan kita sehari-hari.</i> ✨<br>
+        <b>Masjid Jami' Umar Bin Khottob © 2026</b>
     </div>
     """,
     unsafe_allow_html=True,
