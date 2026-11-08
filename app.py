@@ -1,3 +1,4 @@
+import base64
 import json
 import os
 from datetime import datetime
@@ -153,6 +154,26 @@ if "tilawah_entries" not in st.session_state:
   st.session_state.tilawah_entries = load_data()
 
 
+# Fungsi untuk membaca gambar lokal dan mengubahnya ke format web
+def get_img_as_base64(file_path):
+  if os.path.exists(file_path):
+    with open(file_path, "rb") as f:
+      data = f.read()
+    return base64.b64encode(data).decode()
+  return ""
+
+
+img_base64 = get_img_as_base64("quran.jpg")
+if not img_base64:
+  img_base64 = get_img_as_base64("quran.png")  jaga-jaga kalau formatnya png
+
+# HTML tag untuk gambar
+if img_base64:
+  image_html = f'<img src="data:image/jpeg;base64,{img_base64}" style="width: 55px; height: 75px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);" alt="Quran">'
+else:
+  image_html = '<span style="font-size: 45px;">📖</span>'
+
+
 # API Pengambilan Jadwal Sholat Otomatis (Rancaekek, Kab. Bandung)
 @st.cache_data(ttl=1800)
 def get_prayer_times():
@@ -171,37 +192,37 @@ def get_prayer_times():
 
 timings, readable_date = get_prayer_times()
 
-# Styling Modern Glassmorphism & Emerald Theme (Dengan Ikon Mushaf Al-Qur'an di Header)
+# Styling Modern & Banner Hijau dengan Gambar Lokal
 st.markdown(
-    """
+    f"""
     <style>
-    .header-card {
+    .header-card {{
         background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%);
         color: white;
         padding: 28px 24px;
         border-radius: 20px;
         box-shadow: 0 10px 25px -5px rgba(6, 95, 70, 0.3);
         margin-bottom: 20px;
-    }
-    .brand-tag { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; opacity: 0.9; margin-bottom: 6px;}
-    .hero-title { font-size: 28px; font-weight: 800; line-height: 1.15; margin: 4px 0 8px 0; }
-    .hero-sub { font-size: 15px; opacity: 0.9; font-weight: 400; }
-    .prayer-box {
+    }}
+    .brand-tag {{ font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; opacity: 0.9; margin-bottom: 6px; }}
+    .hero-title {{ font-size: 28px; font-weight: 800; line-height: 1.15; margin: 4px 0 8px 0; }}
+    .hero-sub {{ font-size: 15px; opacity: 0.9; font-weight: 400; }}
+    .prayer-box {{
         background: #f0fdf4;
         border: 1px solid #bbf7d0;
         padding: 14px 18px;
         border-radius: 16px;
         margin-bottom: 20px;
-    }
-    .daily-box {
+    }}
+    .daily-box {{
         background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
         border: 1px solid #fde68a;
         padding: 16px 20px;
         border-radius: 16px;
         margin-bottom: 20px;
         color: #78350f;
-    }
-    .stButton>button {
+    }}
+    .stButton>button {{
         background: #059669;
         color: white;
         font-weight: 700;
@@ -209,10 +230,10 @@ st.markdown(
         height: 50px;
         border: none;
         box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
-    }
-    .stButton>button:hover {
+    }}
+    .stButton>button:hover {{
         background: #047857;
-    }
+    }}
     </style>
     <div class="header-card">
         <div style="display: flex; align-items: center; justify-content: space-between;">
@@ -221,8 +242,8 @@ st.markdown(
                 <div class="hero-title">Setoran Tilawah<br>Al-Qur'an</div>
                 <div class="hero-sub">Masjid Jami' Umar Bin Khottob</div>
             </div>
-            <div style="font-size: 52px; background: rgba(255, 255, 255, 0.15); padding: 12px 16px; border-radius: 16px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); line-height: 1;">
-                📖
+            <div style="background: rgba(255, 255, 255, 0.15); padding: 8px; border-radius: 14px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center;">
+                {image_html}
             </div>
         </div>
     </div>
