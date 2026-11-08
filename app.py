@@ -154,7 +154,7 @@ if "tilawah_entries" not in st.session_state:
   st.session_state.tilawah_entries = load_data()
 
 
-# Fungsi untuk membaca gambar lokal dan mengubahnya ke format web
+# Fungsi membaca gambar lokal
 def get_img_as_base64(file_path):
   if os.path.exists(file_path):
     with open(file_path, "rb") as f:
@@ -165,16 +165,16 @@ def get_img_as_base64(file_path):
 
 img_base64 = get_img_as_base64("quran.jpg")
 if not img_base64:
-  img_base64 = get_img_as_base64("quran.png")  # jaga-jaga kalau formatnya png
+  img_base64 = get_img_as_base64("quran.png")
 
-# HTML tag untuk gambar
+# Ukuran gambar diperbesar (format portrait/langsing yang menonjol)
 if img_base64:
-  image_html = f'<img src="data:image/jpeg;base64,{img_base64}" style="width: 55px; height: 75px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);" alt="Quran">'
+  image_html = f'<img src="data:image/jpeg;base64,{img_base64}" style="width: 85px; height: 115px; object-fit: cover; border-radius: 12px; box-shadow: 0 6px 15px rgba(0,0,0,0.3);" alt="Quran">'
 else:
-  image_html = '<span style="font-size: 45px;">📖</span>'
+  image_html = '<span style="font-size: 70px;">📖</span>'
 
 
-# API Pengambilan Jadwal Sholat Otomatis (Rancaekek, Kab. Bandung)
+# API Jadwal Sholat (Rancaekek, Kab. Bandung)
 @st.cache_data(ttl=1800)
 def get_prayer_times():
   try:
@@ -192,21 +192,44 @@ def get_prayer_times():
 
 timings, readable_date = get_prayer_times()
 
-# 1. Styling CSS
+# 1. Styling CSS dengan Judul yang Lebih Besar, Elegan & Jelas
 st.markdown(
     """
     <style>
     .header-card {
         background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%);
         color: white;
-        padding: 28px 24px;
-        border-radius: 20px;
-        box-shadow: 0 10px 25px -5px rgba(6, 95, 70, 0.3);
+        padding: 34px 28px;
+        border-radius: 24px;
+        box-shadow: 0 12px 30px -5px rgba(6, 95, 70, 0.4);
         margin-bottom: 20px;
     }
-    .brand-tag { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; opacity: 0.9; margin-bottom: 6px; }
-    .hero-title { font-size: 28px; font-weight: 800; line-height: 1.15; margin: 4px 0 8px 0; }
-    .hero-sub { font-size: 15px; opacity: 0.9; font-weight: 400; }
+    .brand-tag { 
+        font-size: 13px; 
+        letter-spacing: 0.12em; 
+        text-transform: uppercase; 
+        font-weight: 700; 
+        opacity: 0.95; 
+        background: rgba(255,255,255,0.18); 
+        padding: 5px 14px; 
+        border-radius: 20px; 
+        display: inline-block;
+        margin-bottom: 10px; 
+    }
+    .hero-title { 
+        font-size: 34px; 
+        font-weight: 800; 
+        line-height: 1.15; 
+        margin: 6px 0 10px 0; 
+        font-family: 'Cinzel', 'Trajan Pro', 'Georgia', serif;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.25);
+    }
+    .hero-sub { 
+        font-size: 16px; 
+        opacity: 0.95; 
+        font-weight: 500; 
+        letter-spacing: 0.02em;
+    }
     .prayer-box {
         background: #f0fdf4;
         border: 1px solid #bbf7d0;
@@ -239,7 +262,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 2. Banner Header Utama dengan gambar Al-Qur'an lokal
+# 2. Banner Header Utama dengan Gambar Diperbesar
 st.markdown(
     f"""
     <div class="header-card">
@@ -249,7 +272,7 @@ st.markdown(
                 <div class="hero-title">Setoran Tilawah<br>Al-Qur'an</div>
                 <div class="hero-sub">Masjid Jami' Umar Bin Khottob</div>
             </div>
-            <div style="background: rgba(255, 255, 255, 0.15); padding: 8px; border-radius: 14px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center;">
+            <div style="background: rgba(255, 255, 255, 0.15); padding: 10px; border-radius: 16px; box-shadow: inset 0 2px 6px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center;">
                 {image_html}
             </div>
         </div>
@@ -453,7 +476,6 @@ with tab_pengurus:
 
   admin_pin_rahasia = st.secrets.get("ADMIN_PIN", "1234")
 
-  # Input PIN tanpa type="password" agar tidak memunculkan popup sandi Google
   pin = st.text_input("PIN Pengurus", placeholder="Masukkan PIN 1234")
 
   if st.button("Buka Panel Pengurus"):
