@@ -165,7 +165,7 @@ def get_img_as_base64(file_path):
 
 img_base64 = get_img_as_base64("quran.jpg")
 if not img_base64:
-  img_base64 = get_img_as_base64("quran.png")  jaga-jaga kalau formatnya png
+  img_base64 = get_img_as_base64("quran.png")  # jaga-jaga kalau formatnya png
 
 # HTML tag untuk gambar
 if img_base64:
@@ -203,7 +203,7 @@ st.markdown(
         border-radius: 20px;
         box-shadow: 0 10px 25px -5px rgba(6, 95, 70, 0.3);
         margin-bottom: 20px;
-    }}
+    }
     .brand-tag {{ font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; opacity: 0.9; margin-bottom: 6px; }}
     .hero-title {{ font-size: 28px; font-weight: 800; line-height: 1.15; margin: 4px 0 8px 0; }}
     .hero-sub {{ font-size: 15px; opacity: 0.9; font-weight: 400; }}
@@ -213,7 +213,7 @@ st.markdown(
         padding: 14px 18px;
         border-radius: 16px;
         margin-bottom: 20px;
-    }}
+    }
     .daily-box {{
         background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
         border: 1px solid #fde68a;
@@ -221,7 +221,7 @@ st.markdown(
         border-radius: 16px;
         margin-bottom: 20px;
         color: #78350f;
-    }}
+    }
     .stButton>button {{
         background: #059669;
         color: white;
@@ -230,7 +230,7 @@ st.markdown(
         height: 50px;
         border: none;
         box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
-    }}
+    }
     .stButton>button:hover {{
         background: #047857;
     }}
