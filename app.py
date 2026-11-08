@@ -153,8 +153,8 @@ if "tilawah_entries" not in st.session_state:
   st.session_state.tilawah_entries = load_data()
 
 
-# API Pengambilan Jadwal Sholat Otomatis (Wilayah Bandung & Sekitarnya)
-@st.cache_data(ttl=1800)  # Refresh cache tiap 30 menit
+# API Pengambilan Jadwal Sholat Otomatis (Bandung & Sekitarnya)
+@st.cache_data(ttl=1800)
 def get_prayer_times():
   try:
     url = "https://api.aladhan.com/v1/timingsByCity?city=Bandung&country=Indonesia&method=20"
@@ -169,7 +169,7 @@ def get_prayer_times():
 
 timings, readable_date = get_prayer_times()
 
-# Modern UI Styling (CSS Modern Glassmorphism & Emerald Theme)
+# Styling Modern Glassmorphism & Emerald Theme
 st.markdown(
     """
     <style>
@@ -184,14 +184,12 @@ st.markdown(
     .brand-tag { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700; opacity: 0.85; background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 20px; display: inline-block; margin-bottom: 8px;}
     .hero-title { font-size: 28px; font-weight: 800; line-height: 1.2; margin: 4px 0; }
     .hero-sub { font-size: 15px; opacity: 0.9; font-weight: 400; }
-    
     .prayer-box {
         background: #f0fdf4;
         border: 1px solid #bbf7d0;
         padding: 14px 18px;
         border-radius: 16px;
         margin-bottom: 20px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.02);
     }
     .daily-box {
         background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
@@ -200,7 +198,6 @@ st.markdown(
         border-radius: 16px;
         margin-bottom: 20px;
         color: #78350f;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.02);
     }
     .stButton>button {
         background: #059669;
@@ -210,11 +207,9 @@ st.markdown(
         height: 50px;
         border: none;
         box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
-        transition: all 0.3s ease;
     }
     .stButton>button:hover {
         background: #047857;
-        box-shadow: 0 6px 15px rgba(4, 120, 87, 0.3);
     }
     </style>
     <div class="header-card">
@@ -226,7 +221,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Widget Jadwal Sholat Otomatis Berdasarkan Lokasi (Update Real-time)
+# Widget Jadwal Sholat
 if timings:
   st.markdown(
       f"""
@@ -247,13 +242,13 @@ if timings:
       unsafe_allow_html=True,
   )
 
-# Fitur Update Otomatis Harian (Motivasi & Ayat Berganti Otomatis Setiap Hari)
+# Motivasi Harian Otomatis
 DAILY_UPDATES = [
     (
         "💡 Motivasi Hari Ini",
         (
             "\"Sebaik-baik kalian adalah orang yang mempelajari Al-Qur'an dan"
-            ' mengajarkannya." (HR. Bukhari)'
+            ' mengajarkannya.\" (HR. Bukhari)'
         ),
     ),
     (
@@ -287,7 +282,6 @@ DAILY_UPDATES = [
     ),
 ]
 
-# Update otomatis berdasarkan hari dalam setahun
 day_index = datetime.now().timetuple().tm_yday % len(DAILY_UPDATES)
 update_title, update_text = DAILY_UPDATES[day_index]
 
@@ -302,7 +296,9 @@ st.markdown(
 )
 
 # Tab Menu Utama
-tab_jamaah, tab_pengurus = st.tabs(["👥 Jamaah (Input Setoran)", "⚙️ Pengurus (Rekap & Data)"])
+tab_jamaah, tab_pengurus = st.tabs(
+    ["👥 Jamaah (Input Setoran)", "⚙️ Pengurus (Rekap & Grafik)"]
+)
 
 with tab_jamaah:
   st.subheader("Form Setoran Tilawah Harian")
@@ -373,7 +369,7 @@ with tab_jamaah:
 
   st.divider()
 
-  # Riwayat Setoran Pribadi
+  # Riwayat Setoran Pribadi dengan Indikator Progress
   st.subheader("📋 Riwayat Setoran Saya")
   filter_nama = st.text_input(
       "Ketik nama Anda untuk melihat riwayat setoran",
@@ -392,6 +388,13 @@ with tab_jamaah:
     if not filtered:
       st.warning("Belum ada data setoran ditemukan dengan nama tersebut.")
     else:
+      # Tampilkan ringkasan pencapaian pribadi
+      total_pribadi = len(filtered)
+      st.success(
+          f"✨ **{filter_nama.strip()}** telah mencatatkan **{total_pribadi}x**"
+          " setoran tilawah/hafalan."
+      )
+
       for e in filtered:
         catatan_str = f" · Catatan: {e['catatan']}" if e["catatan"] else ""
         st.markdown(
@@ -407,17 +410,21 @@ with tab_jamaah:
 with tab_pengurus:
   st.subheader("🔐 Panel Pengurus Masjid")
   st.markdown(
-      '<p style="font-size: 13px; color: #62736a;">Masukkan PIN'
-      " <b>1234</b> untuk membuka rekapitulasi data keseluruhan.</p>",
+      '<p style="font-size: 13px; color: #62736a;">Masukkan PIN aman'
+      " (tersimpan di brankas sistem) untuk membuka rekapitulasi data dan"
+      " grafik.</p>",
       unsafe_allow_html=True,
   )
 
+  # Mengambil PIN dari secrets Streamlit Cloud atau default '1234'
+  admin_pin_rahasia = st.secrets.get("ADMIN_PIN", "1234")
+
   pin = st.text_input("PIN Pengurus", type="password")
   if st.button("Buka Panel Pengurus"):
-    if pin == "admintilawahUBK":
+    if pin == admin_pin_rahasia:
       st.session_state["admin_logged"] = True
     else:
-      st.error("admintilawahUBK.")
+      st.error("PIN salah!")
       st.session_state["admin_logged"] = False
 
   if st.session_state.get("admin_logged", False):
@@ -427,7 +434,7 @@ with tab_pengurus:
     total_setoran = len(entries)
     total_jamaah = len(set(e["nama"].lower() for e in entries))
 
-    # Metric Dashboard Modern
+    # Metric Dashboard
     col1, col2 = st.columns(2)
     with col1:
       st.metric(label="Total Seluruh Setoran", value=total_setoran)
@@ -437,24 +444,53 @@ with tab_pengurus:
     if entries:
       df = pd.DataFrame(entries)
 
-      # Tabel Rekap Per Jamaah
-      st.markdown("### 📊 Rekapitulasi Hasil Setiap Jamaah")
+      st.markdown("---")
+      st.markdown("### 📈 Grafik Statistik Setoran per Jamaah")
+      # Membuat data untuk grafik batang (jumlah setoran per jamaah)
+      chart_data = (
+          df["nama"].value_counts().reset_index()
+      )  # Menggunakan pandas modern tanpa parameter deprecated
+      chart_data.columns = ["Nama Jamaah", "Jumlah Setoran"]
+      chart_data = chart_data.set_index("Nama Jamaah")
+
+      # Menampilkan grafik batang interaktif Streamlit
+      st.bar_chart(chart_data)
+
+      st.markdown("### 📊 Rekapitulasi & Persentase Progress Jamaah")
+
+      # Menghitung rekap dan persentase kontribusi terhadap total setoran
       rekap_jamaah = (
           df.groupby("nama")
           .agg(
-              Total_Setoran=("surat", "count"),
+              Jumlah_Setoran=("surat", "count"),
               Setoran_Terakhir=("tanggal", "max"),
           )
           .reset_index()
-          .rename(
-              columns={
-                  "nama": "Nama Jamaah",
-                  "Total_Setoran": "Jumlah Setoran",
-                  "Setoran_Terakhir": "Aktivitas Terakhir",
-              }
-          )
       )
-      st.dataframe(rekap_jamaah, use_container_width=True, hide_index=True)
+
+      max_setoran = (
+          rekap_jamaah["Jumlah_Setoran"].max() if not rekap_jamaah.empty else 1
+      )
+
+      for idx, row in rekap_jamaah.iterrows():
+        nama_j = row["nama"]
+        jml = row["Jumlah_Setoran"]
+        last_dt = row["Setoran_Terakhir"]
+
+        # Hitung estimasi persentase relatif (misal target maksimal atau proporsi)
+        # Atau persentase pencapaian terhadap target fleksibel (misal target 20 setoran = 100%)
+        target_ideal = 20
+        persen = min(int((jml / target_ideal) * 100), 100)
+
+        st.markdown(
+            f"**{nama_j}** — {jml} setoran *(Terakhir: {last_dt})* — Target"
+            f" Tercapai: {persen}%"
+        )
+        st.progress(persen / 100.0)
+
+      # Tabel Rekap Lengkap
+      with st.expander("📋 Lihat Tabel Rekap Detail"):
+        st.dataframe(rekap_jamaah, use_container_width=True, hide_index=True)
 
       # Expander Detail per Jamaah
       with st.expander("🔍 Lihat Detail Riwayat Spesifik Per Jamaah"):
@@ -465,7 +501,8 @@ with tab_pengurus:
         for idx, row in detail_jamaah.iterrows():
           catatan_str = f" · Catatan: {row['catatan']}" if row["catatan"] else ""
           st.markdown(
-              f"- 📅 **{row['tanggal']}** | Surat **{row['surat']}** (Ayat {row['awal']}–{row['akhir']}) - *{row['jumlah']}*{catatan_str}"
+              f"- 📅 **{row['tanggal']}** | Surat **{row['surat']}** (Ayat"
+              f" {row['awal']}–{row['akhir']}) - *{row['jumlah']}*{catatan_str}"
           )
 
       st.divider()
