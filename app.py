@@ -319,7 +319,7 @@ def generate_pdf(rekap_df):
   return bytes(pdf.output())
 
 
-# 1. Styling CSS murni (Tanpa f-string agar aman dari error kurung kurawal)
+# 1. Styling CSS murni
 st.markdown(
     """
     <style>
@@ -491,8 +491,9 @@ with tab_jamaah:
   st.subheader("Form Setoran Tilawah Harian")
 
   with st.form("form_setoran_modern", clear_on_submit=True):
+    # Nama Jamaah dengan placeholder Agus Permana
     nama = st.text_input(
-        "Nama Jamaah", placeholder="Contoh: Ahmad Hidayat"
+        "Nama Jamaah", placeholder="Contoh: Agus Permana"
     )
     tanggal = st.date_input("Tanggal Membaca", value=datetime.now())
 
