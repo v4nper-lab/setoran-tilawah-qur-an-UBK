@@ -17,123 +17,138 @@ st.set_page_config(
 # File penyimpanan data lokal
 DATA_FILE = "data_tilawah.json"
 
-# Daftar 114 Surah
-SURAHS = [
-    "Al-Fatihah",
-    "Al-Baqarah",
-    "Ali 'Imran",
-    "An-Nisa'",
-    "Al-Ma'idah",
-    "Al-An'am",
-    "Al-A'raf",
-    "Al-Anfal",
-    "At-Taubah",
-    "Yunus",
-    "Hud",
-    "Yusuf",
-    "Ar-Ra'd",
-    "Ibrahim",
-    "Al-Hijr",
-    "An-Nahl",
-    "Al-Isra'",
-    "Al-Kahf",
-    "Maryam",
-    "Ta-Ha",
-    "Al-Anbiya'",
-    "Al-Hajj",
-    "Al-Mu'minun",
-    "An-Nur",
-    "Al-Furqan",
-    "Asy-Syu'ara'",
-    "An-Naml",
-    "Al-Qasas",
-    "Al-'Ankabut",
-    "Ar-Rum",
-    "Luqman",
-    "As-Sajdah",
-    "Al-Ahzab",
-    "Saba'",
-    "Fatir",
-    "Yasin",
-    "As-Saffat",
-    "Sad",
-    "Az-Zumar",
-    "Ghafir",
-    "Fussilat",
-    "Asy-Syura",
-    "Az-Zukhruf",
-    "Ad-Dukhan",
-    "Al-Jasiyah",
-    "Al-Ahqaf",
-    "Muhammad",
-    "Al-Fath",
-    "Al-Hujurat",
-    "Qaf",
-    "Az-Zariyat",
-    "At-Tur",
-    "An-Najm",
-    "Al-Qamar",
-    "Ar-Rahman",
-    "Al-Waqi'ah",
-    "Al-Hadid",
-    "Al-Mujadilah",
-    "Al-Hasyr",
-    "Al-Mumtahanah",
-    "As-Saff",
-    "Al-Jumu'ah",
-    "Al-Munafiqun",
-    "At-Taghabun",
-    "At-Talaq",
-    "At-Tahrim",
-    "Al-Mulk",
-    "Al-Qalam",
-    "Al-Haqqah",
-    "Al-Ma'arij",
-    "Nuh",
-    "Al-Jinn",
-    "Al-Muzzammil",
-    "Al-Muddassir",
-    "Al-Qiyamah",
-    "Al-Insan",
-    "Al-Mursalat",
-    "An-Naba'",
-    "An-Nazi'at",
-    "'Abasa",
-    "At-Takwir",
-    "Al-Infitar",
-    "Al-Mutaffifin",
-    "Al-Insyiqaq",
-    "Al-Buruj",
-    "At-Tariq",
-    "Al-A'la",
-    "Al-Ghasyiyah",
-    "Al-Fajr",
-    "Al-Balad",
-    "Asy-Syams",
-    "Al-Lail",
-    "Ad-Duha",
-    "Asy-Syarh",
-    "At-Tin",
-    "Al-'Alaq",
-    "Al-Qadr",
-    "Al-Bayyinah",
-    "Az-Zalzalah",
-    "Al-'Adiyat",
-    "Al-Qari'ah",
-    "At-Takasur",
-    "Al-'Asr",
-    "Al-Humazah",
-    "Al-Fil",
-    "Quraisy",
-    "Al-Ma'un",
-    "Al-Kausar",
-    "Al-Kafirun",
-    "An-Nasr",
-    "Al-Lahab",
-    "Al-Ikhlas",
-    "Al-Falaq",
-    "An-Nas",
+# Daftar 114 Surah lengkap dengan informasi Juz-nya
+SURAHS_DATA = [
+    ("Al-Fatihah", 1),
+    ("Al-Baqarah", 1),
+    ("Ali 'Imran", 3),
+    ("An-Nisa'", 4),
+    ("Al-Ma'idah", 6),
+    ("Al-An'am", 7),
+    ("Al-A'raf", 8),
+    ("Al-Anfal", 9),
+    ("At-Taubah", 10),
+    ("Yunus", 11),
+    ("Hud", 11),
+    ("Yusuf", 12),
+    ("Ar-Ra'd", 13),
+    ("Ibrahim", 13),
+    ("Al-Hijr", 14),
+    ("An-Nahl", 14),
+    ("Al-Isra'", 15),
+    ("Al-Kahf", 15),
+    ("Maryam", 16),
+    ("Ta-Ha", 16),
+    ("Al-Anbiya'", 17),
+    ("Al-Hajj", 17),
+    ("Al-Mu'minun", 18),
+    ("An-Nur", 18),
+    ("Al-Furqan", 18),
+    ("Asy-Syu'ara'", 19),
+    ("An-Naml", 19),
+    ("Al-Qasas", 20),
+    ("Al-'Ankabut", 20),
+    ("Ar-Rum", 21),
+    ("Luqman", 21),
+    ("As-Sajdah", 21),
+    ("Al-Ahzab", 21),
+    ("Saba'", 22),
+    ("Fatir", 22),
+    ("Yasin", 22),
+    ("As-Saffat", 23),
+    ("Sad", 23),
+    ("Az-Zumar", 23),
+    ("Ghafir", 24),
+    ("Fussilat", 24),
+    ("Asy-Syura", 25),
+    ("Az-Zukhruf", 25),
+    ("Ad-Dukhan", 25),
+    ("Al-Jasiyah", 25),
+    ("Al-Ahqaf", 26),
+    ("Muhammad", 26),
+    ("Al-Fath", 26),
+    ("Al-Hujurat", 26),
+    ("Qaf", 26),
+    ("Az-Zariyat", 26),
+    ("At-Tur", 27),
+    ("An-Najm", 27),
+    ("Al-Qamar", 27),
+    ("Ar-Rahman", 27),
+    ("Al-Waqi'ah", 27),
+    ("Al-Hadid", 27),
+    ("Al-Mujadilah", 28),
+    ("Al-Hasyr", 28),
+    ("Al-Mumtahanah", 28),
+    ("As-Saff", 28),
+    ("Al-Jumu'ah", 28),
+    ("Al-Munafiqun", 28),
+    ("At-Taghabun", 28),
+    ("At-Talaq", 28),
+    ("At-Tahrim", 28),
+    ("Al-Mulk", 29),
+    ("Al-Qalam", 29),
+    ("Al-Haqqah", 29),
+    ("Al-Ma'arij", 29),
+    ("Nuh", 29),
+    ("Al-Jinn", 29),
+    ("Al-Muzzammil", 29),
+    ("Al-Muddassir", 29),
+    ("Al-Qiyamah", 29),
+    ("Al-Insan", 29),
+    ("Al-Mursalat", 29),
+    ("An-Naba'", 30),
+    ("An-Nazi'at", 30),
+    ("'Abasa", 30),
+    ("At-Takwir", 30),
+    ("Al-Infitar", 30),
+    ("Al-Mutaffifin", 30),
+    ("Al-Insyiqaq", 30),
+    ("Al-Buruj", 30),
+    ("At-Tariq", 30),
+    ("Al-A'la", 30),
+    ("Al-Ghasyiyah", 30),
+    ("Al-Fajr", 30),
+    ("Al-Balad", 30),
+    ("Asy-Syams", 30),
+    ("Al-Lail", 30),
+    ("Ad-Duha", 30),
+    ("Asy-Syarh", 30),
+    ("At-Tin", 30),
+    ("Al-'Alaq", 30),
+    ("Al-Qadr", 30),
+    ("Al-Bayyinah", 30),
+    ("Az-Zalzalah", 30),
+    ("Al-'Adiyat", 30),
+    ("Al-Qari'ah", 30),
+    ("At-Takasur", 30),
+    ("Al-'Asr", 30),
+    ("Al-Humazah", 30),
+    ("Al-Fil", 30),
+    ("Quraisy", 30),
+    ("Al-Ma'un", 30),
+    ("Al-Kausar", 30),
+    ("Al-Kafirun", 30),
+    ("An-Nasr", 30),
+    ("Al-Lahab", 30),
+    ("Al-Ikhlas", 30),
+    ("Al-Falaq", 30),
+    ("An-Nas", 30),
 ]
+
+# Mapping untuk dropdown dan konversi nama bersih
+SURAF_DISPLAY_MAP = {f"{name} (Juz {juz})": name for name, juz in SURAHS_DATA}
+SURAF_OPTIONS = list(SURAF_DISPLAY_MAP.keys())
+
+# Bobot estimasi Juz untuk sistem target 1 hari 1 juz
+JUZ_WEIGHTS = {
+    "Kurang dari 1 halaman": 0.02,
+    "1 halaman": 0.05,
+    "2 halaman": 0.10,
+    "3 halaman": 0.15,
+    "5 halaman": 0.25,
+    "1 juz": 1.00,
+    "Lebih dari 1 juz": 1.50,
+}
 
 
 def load_data():
@@ -155,7 +170,7 @@ if "tilawah_entries" not in st.session_state:
   st.session_state.tilawah_entries = load_data()
 
 
-# Fungsi membaca gambar lokal (Quran & Masjid)
+# Fungsi membaca gambar lokal (Masjid & Al-Quran)
 def get_img_as_base64(file_path):
   if os.path.exists(file_path):
     with open(file_path, "rb") as f:
@@ -164,26 +179,29 @@ def get_img_as_base64(file_path):
   return ""
 
 
-img_quran_base64 = get_img_as_base64("quran.jpg")
-if not img_quran_base64:
-  img_quran_base64 = get_img_as_base64("quran.png")
+masjid_base64 = get_img_as_base64("masjid.jpg")
+if not masjid_base64:
+  masjid_base64 = get_img_as_base64("masjid.png")
+if not masjid_base64:
+  masjid_base64 = get_img_as_base64("masjid UBK.jpg")
 
-img_masjid_base64 = get_img_as_base64("masjid.jpg")
-if not img_masjid_base64:
-  img_masjid_base64 = get_img_as_base64("masjid.png")
+quran_base64 = get_img_as_base64("quran.jpg")
+if not quran_base64:
+  quran_base64 = get_img_as_base64("quran.png")
 
-# HTML tag untuk gambar Quran di sebelah kanan
-if img_quran_base64:
-  image_html = f'<img src="data:image/jpeg;base64,{img_quran_base64}" style="width: 85px; height: 115px; object-fit: cover; border-radius: 12px; box-shadow: 0 6px 15px rgba(0,0,0,0.3);" alt="Quran">'
+# HTML untuk gambar Al-Quran di sebelah kanan judul
+if quran_base64:
+  image_html = f'<img src="data:image/jpeg;base64,{quran_base64}" style="width: 85px; height: 115px; object-fit: cover; border-radius: 12px; box-shadow: 0 6px 15px rgba(0,0,0,0.3);" alt="Quran">'
 else:
   image_html = '<span style="font-size: 70px;">📖</span>'
 
-# CSS Background Masjid dengan gradasi hijau transparan agar teks tetap sangat jelas dibaca
-if img_masjid_base64:
-  header_bg_css = f"linear-gradient(135deg, rgba(6, 78, 59, 0.92) 0%, rgba(6, 95, 70, 0.88) 50%, rgba(4, 120, 87, 0.92) 100%), url('data:image/jpeg;base64,{img_masjid_base64}')"
+# Styling background gambar masjid dengan overlay hijau semi-transparan
+if masjid_base64:
+  header_bg_style = f"background: linear-gradient(135deg, rgba(6, 78, 59, 0.92) 0%, rgba(6, 95, 70, 0.88) 50%, rgba(4, 120, 87, 0.92) 100%), url('data:image/jpeg;base64,{masjid_base64}'); background-size: cover; background-position: center;"
 else:
-  header_bg_css = (
-      "linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%)"
+  header_bg_style = (
+      "background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857"
+      " 100%);"
   )
 
 
@@ -206,7 +224,7 @@ def get_prayer_times():
 timings, readable_date = get_prayer_times()
 
 
-# Generator Laporan PDF
+# Kelas Generator PDF Laporan Rekapitulasi
 class PDFReport(FPDF):
 
   def header(self):
@@ -218,7 +236,7 @@ class PDFReport(FPDF):
     self.cell(
         0,
         5,
-        "Laporan Rekapitulasi Progress Setoran Tilawah & Tahfidz Jamaah",
+        "Laporan Rekapitulasi Progress Setoran Tilawah (Target 1 Hari 1 Juz)",
         0,
         1,
         "C",
@@ -261,10 +279,11 @@ def generate_pdf(rekap_df):
   pdf.set_fill_color(6, 78, 59)
   pdf.set_text_color(255, 255, 255)
 
-  pdf.cell(15, 8, "No", 1, 0, "C", True)
-  pdf.cell(85, 8, "Nama Jamaah", 1, 0, "L", True)
-  pdf.cell(35, 8, "Total Setoran", 1, 0, "C", True)
-  pdf.cell(55, 8, "Setoran Terakhir", 1, 1, "C", True)
+  pdf.cell(12, 8, "No", 1, 0, "C", True)
+  pdf.cell(70, 8, "Nama Jamaah", 1, 0, "L", True)
+  pdf.cell(30, 8, "Setoran", 1, 0, "C", True)
+  pdf.cell(35, 8, "Est. Juz", 1, 0, "C", True)
+  pdf.cell(43, 8, "Pencapaian", 1, 1, "C", True)
 
   pdf.set_font("helvetica", "", 10)
   pdf.set_text_color(0, 0, 0)
@@ -276,10 +295,11 @@ def generate_pdf(rekap_df):
     else:
       pdf.set_fill_color(255, 255, 255)
 
-    pdf.cell(15, 7, str(idx + 1), 1, 0, "C", True)
-    pdf.cell(85, 7, str(row["nama"]), 1, 0, "L", True)
-    pdf.cell(35, 7, str(row["Jumlah_Setoran"]) + "x", 1, 0, "C", True)
-    pdf.cell(55, 7, str(row["Setoran_Terakhir"]), 1, 1, "C", True)
+    pdf.cell(12, 7, str(idx + 1), 1, 0, "C", True)
+    pdf.cell(70, 7, str(row["nama"]), 1, 0, "L", True)
+    pdf.cell(30, 7, str(row["Jumlah_Setoran"]) + "x", 1, 0, "C", True)
+    pdf.cell(35, 7, f"{row['Total_Juz']:.2f} Juz", 1, 0, "C", True)
+    pdf.cell(43, 7, f"{row['Persen']}%", 1, 1, "C", True)
 
   pdf.ln(10)
   pdf.set_font("helvetica", "I", 9)
@@ -296,17 +316,16 @@ def generate_pdf(rekap_df):
       "C",
   )
 
-  return pdf.output()
+  # Mengonversi output FPDF ke bytes agar aman untuk st.download_button
+  return bytes(pdf.output())
 
 
-# Styling CSS dengan Background Gambar Masjid UBK
+# 1. Styling CSS dengan Background Masjid di Header
 st.markdown(
     f"""
     <style>
     .header-card {{
-        background: {header_bg_css};
-        background-size: cover;
-        background-position: center;
+        {header_bg_style}
         color: white;
         padding: 34px 28px;
         border-radius: 24px;
@@ -331,14 +350,14 @@ st.markdown(
         line-height: 1.15; 
         margin: 6px 0 10px 0; 
         font-family: 'Cinzel', 'Trajan Pro', 'Georgia', serif;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        text-shadow: 0 2px 6px rgba(0,0,0,0.4);
     }}
     .hero-sub {{ 
         font-size: 16px; 
         opacity: 0.95; 
         font-weight: 500; 
         letter-spacing: 0.02em;
-        text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        text-shadow: 0 1px 3px rgba(0,0,0,0.3);
     }}
     .prayer-box {{
         background: #f0fdf4;
@@ -372,7 +391,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Banner Header Utama
+# 2. Banner Header Utama
 st.markdown(
     f"""
     <div class="header-card">
@@ -478,8 +497,10 @@ with tab_jamaah:
         "Nama Jamaah", placeholder="Contoh: Ahmad Hidayat"
     )
     tanggal = st.date_input("Tanggal Membaca", value=datetime.now())
-    surat = st.selectbox(
-        "Surat yang Dibaca", ["Pilih Nama Surat"] + SURAHS
+
+    # Dropdown surat dengan informasi Juz
+    selected_surat_display = st.selectbox(
+        "Surat yang Dibaca (Disertai Info Juz)", ["Pilih Nama Surat"] + SURAF_OPTIONS
     )
 
     col1, col2 = st.columns(2)
@@ -508,22 +529,27 @@ with tab_jamaah:
     submitted = st.form_submit_button("🚀 SIMPAN SETORAN SEKARANG")
 
     if submitted:
+      surat_clean = (
+          SURAF_DISPLAY_MAP.get(selected_surat_display, "")
+          if selected_surat_display != "Pilih Nama Surat"
+          else ""
+      )
       if (
           not nama.strip()
-          or surat == "Pilih Nama Surat"
+          or selected_surat_display == "Pilih Nama Surat"
           or jumlah == "Pilih Jumlah"
           or akhir < awal
       ):
         st.error(
-            "Mohon lengkapi Nama, Surat, Rentang Ayat yang valid, dan Jumlah"
-            " Bacaan dengan benar."
+            "Mohon lengkapi Nama, Surat dengan Juz, Rentang Ayat yang valid, dan"
+            " Jumlah Bacaan dengan benar."
         )
       else:
         new_entry = {
             "id": datetime.now().strftime("%Y%m%d%H%M%S%f"),
             "nama": nama.strip(),
             "tanggal": tanggal.strftime("%Y-%m-%d"),
-            "surat": surat,
+            "surat": surat_clean,
             "awal": int(awal),
             "akhir": int(akhir),
             "jumlah": jumlah,
@@ -618,28 +644,47 @@ with tab_pengurus:
       chart_data = chart_data.set_index("Nama Jamaah")
       st.bar_chart(chart_data)
 
-      st.markdown("### 📊 Rekapitulasi & Persentase Progress Jamaah")
-      rekap_jamaah = (
-          df.groupby("nama")
-          .agg(
-              Jumlah_Setoran=("surat", "count"),
-              Setoran_Terakhir=("tanggal", "max"),
-          )
-          .reset_index()
-      )
+      st.markdown("### 📊 Rekapitulasi & Progress (Target 1 Hari 1 Juz)")
 
-      target_ideal = 20
-      for idx, row in rekap_jamaah.iterrows():
-        nama_j = row["nama"]
-        jml = row["Jumlah_Setoran"]
-        last_dt = row["Setoran_Terakhir"]
-        persen = min(int((jml / target_ideal) * 100), 100)
+      # Menghitung rekap per jamaah beserta estimasi total juz dan target 1 hari 1 juz
+      rekap_list = []
+      for nama_j, group in df.groupby("nama"):
+        jml_setoran = len(group)
+        last_dt = group["tanggal"].max()
+        first_dt = group["tanggal"].min()
 
-        st.markdown(
-            f"**{nama_j}** — {jml} setoran *(Terakhir: {last_dt})* — Target"
-            f" Tercapai: {persen}%"
+        # Hitung total perkiraan juz berdasarkan bobot jumlah bacaan
+        total_juz = sum(
+            group["jumlah"].map(JUZ_WEIGHTS).fillna(0.1)
         )
-        st.progress(persen / 100.0)
+
+        # Hitung target hari aktif (selisih hari dari setoran pertama sampai hari ini, min 1 hari)
+        days_active = max(
+            1,
+            (datetime.now().date() - pd.to_datetime(first_dt).date()).days + 1,
+        )
+        target_juz = float(
+            days_active * 1.0
+        )  # Target 1 Juz per hari aktif
+
+        persen = min(int((total_juz / target_juz) * 100), 100)
+        rekap_list.append({
+            "nama": nama_j,
+            "Jumlah_Setoran": jml_setoran,
+            "Total_Juz": total_juz,
+            "Setoran_Terakhir": last_dt,
+            "Persen": persen,
+        })
+
+      rekap_jamaah = pd.DataFrame(rekap_list)
+
+      for idx, row in rekap_jamaah.iterrows():
+        st.markdown(
+            f"**{row['nama']}** — {row['Jumlah_Setoran']} setoran (Est. "
+            f"**{row['Total_Juz']:.2f} Juz** dari Target 1 Hari 1 Juz) —"
+            f" Pencapaian: **{row['Persen']}%**"
+        )
+        st.progress(row["Persen"] / 100.0)
 
       with st.expander("📋 Lihat Tabel Rekap Detail"):
         st.dataframe(rekap_jamaah, use_container_width=True, hide_index=True)
@@ -650,7 +695,7 @@ with tab_pengurus:
         )
         detail_jamaah = df[df["nama"] == pilih_jamaah]
         for idx, row in detail_jamaah.iterrows():
-          catatan_str = f" · Catatan: {row['catatan']}" if row['catatan'] else ""
+          catatan_str = f" · Catatan: {row['catatan']}" if row["catatan"] else ""
           st.markdown(
               f"- 📅 **{row['tanggal']}** | Surat **{row['surat']}** (Ayat"
               f" {row['awal']}–{row['akhir']}) - *{row['jumlah']}*{catatan_str}"
@@ -658,12 +703,13 @@ with tab_pengurus:
 
       st.divider()
 
-      # Tombol Cetak / Unduh Laporan PDF
+      # Tombol Download Laporan PDF untuk Print Out / Share Grup WA
       st.markdown("### 🖨️ Cetak & Unduh Laporan PDF")
       st.markdown(
           '<p style="font-size: 13px; color: #62736a;">Unduh laporan'
-          " rekapitulasi progress jamaah dalam format PDF untuk dicetak atau"
-          " dibagikan mingguan/harian ke grup WhatsApp.</p>",
+          " rekapitulasi progress jamaah berformat PDF untuk dicetak atau"
+          " dibagikan mingguan/harian ke grup WhatsApp guna memotivasi"
+          " jamaah.</p>",
           unsafe_allow_html=True,
       )
 
@@ -697,7 +743,7 @@ with tab_pengurus:
 
       st.markdown("### 📁 Daftar Log Seluruh Setoran Masuk")
       for e in entries:
-        catatan_str = f" · Catatan: {e['catatan']}" if e['catatan'] else ""
+        catatan_str = f" · Catatan: {e['catatan']}" if e["catatan"] else ""
         st.markdown(
             f"""
             <div style="border: 1px solid #dce8df; padding: 12px; border-radius: 10px; margin-bottom: 8px; background: white;">
