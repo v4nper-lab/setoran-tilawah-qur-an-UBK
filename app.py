@@ -12,7 +12,7 @@ st.set_page_config(
 # File penyimpanan data lokal
 DATA_FILE = "data_tilawah.json"
 
-# Daftar 114 Surah sesuai standar HTML
+# Daftar 114 Surah
 SURAHS = [
     "Al-Fatihah",
     "Al-Baqarah",
@@ -149,7 +149,7 @@ def save_data(data):
 if "tilawah_entries" not in st.session_state:
   st.session_state.tilawah_entries = load_data()
 
-# Styling header dan nuansa warna hijau khas Masjid Umar Bin Khottob
+# Styling Header
 st.markdown(
     """
     <style>
@@ -255,7 +255,7 @@ with tab_jamaah:
         st.session_state.tilawah_entries.insert(0, new_entry)
         save_data(st.session_state.tilawah_entries)
         st.success(
-            "Alhamdulillah, setoran tersimpan di perangkat ini."
+            "Alhamdulillah, setoran tersimpan. Barakallahu fiikum!"
         )
         st.session_state["last_nama"] = nama.strip()
         st.rerun()
@@ -296,8 +296,8 @@ with tab_jamaah:
 with tab_pengurus:
   st.subheader("Halaman Pengurus")
   st.markdown(
-      '<p style="font-size: 14px; color: #62736a;">Untuk prototipe ini,'
-      " masukkan PIN contoh <b>1234</b>.</p>",
+      '<p style="font-size: 14px; color: #62736a;">Masukkan PIN'
+      " <b>1234</b> untuk membuka rekapitulasi.</p>",
       unsafe_allow_html=True,
   )
 
@@ -306,7 +306,7 @@ with tab_pengurus:
     if pin == "1234":
       st.session_state["admin_logged"] = True
     else:
-      st.error("PIN salah. Untuk demo, gunakan 1234.")
+      st.error("PIN salah. Gunakan 1234.")
       st.session_state["admin_logged"] = False
 
   if st.session_state.get("admin_logged", False):
@@ -320,10 +320,44 @@ with tab_pengurus:
     with c1:
       st.metric("Total setoran", total_setoran)
     with c2:
-      st.metric("Nama jamaah", total_jamaah)
+      st.metric("Total nama jamaah", total_jamaah)
 
     if entries:
       df = pd.DataFrame(entries)
+
+      # Fitur Rekap Hasil Setiap Jamaah
+      st.markdown("### 📊 Rekapitulasi Hasil Setiap Jamaah")
+      rekap_jamaah = (
+          df.groupby("nama")
+          .agg(
+              Jumlah_Setoran=("surat", "count"),
+              Aktivitas_Terakhir=("tanggal", "max"),
+          )
+          .reset_index()
+          .rename(
+              columns={
+                  "nama": "Nama Jamaah",
+                  "Jumlah_Setoran": "Total Setoran",
+                  "Aktivitas_Terakhir": "Setoran Terakhir",
+              }
+          )
+      )
+      st.dataframe(rekap_jamaah, use_container_width=True, hide_index=True)
+
+      # Expander Detail per Jamaah
+      with st.expander("🔍 Lihat Detail Riwayat Per Jamaah"):
+        pilih_jamaah = st.selectbox(
+            "Pilih Jamaah", sorted(df["nama"].unique())
+        )
+        detail_jamaah = df[df["nama"] == pilih_jamaah]
+        for idx, row in detail_jamaah.iterrows():
+          catatan_str = f" · Catatan: {row['catatan']}" if row["catatan"] else ""
+          st.markdown(
+              f"- 📅 **{row['tanggal']}** | Surat **{row['surat']}** (Ayat {row['awal']}–{row['akhir']}) - *{row['jumlah']}*{catatan_str}"
+          )
+
+      st.divider()
+
       csv = df.to_csv(index=False).encode("utf-8")
       st.download_button(
           label="UNDUH REKAP EXCEL (CSV)",
@@ -338,7 +372,7 @@ with tab_pengurus:
         st.success("Seluruh data berhasil dihapus.")
         st.rerun()
 
-      st.markdown("### Daftar Seluruh Setoran")
+      st.markdown("### Daftar Seluruh Setoran Masuk")
       for e in entries:
         catatan_str = f" · Catatan: {e['catatan']}" if e["catatan"] else ""
         st.markdown(
@@ -351,17 +385,16 @@ with tab_pengurus:
             unsafe_allow_html=True,
         )
     else:
-      st.info("Belum ada setoran.")
+      st.info("Belum ada data setoran.")
 
+# Motivasi Tilawah sebagai Pengganti Catatan Bawah
 st.markdown(
-    '<div class="notice" style="margin-top: 30px;"><b>Catatan penting:</b> Ini'
-    " prototipe aplikasi Masjid Jami' Umar Bin Khottob. Data tersimpan di"
-    " perangkat server aplikasi.</div>",
-    unsafe_allow_html=True,
-)
-st.markdown(
-    '<div style="text-align: center; color: #62736a; font-size: 13px; margin-top'
-    ': 20px;">Semoga Allah menjadikan Al-Qur\'an cahaya dalam kehidupan kita.'
-    " Aamiin.</div>",
+    """
+    <div style="background: #e8f2eb; border: 1px solid #c8dfcf; padding: 16px; border-radius: 12px; margin-top: 35px; text-align: center; color: #145c3a;">
+        <b>💡 Motivasi Tilawah:</b><br>
+        <i>"Sebaik-baik kalian adalah orang yang mempelajari Al-Qur'an dan mengajarkannya."</i> (HR. Bukhari)<br>
+        <span style="font-size: 13px; color: #62736a; margin-top: 5px; display: block;">Semoga Allah menjadikan Al-Qur'an cahaya dalam kehidupan kita. Aamiin.</span>
+    </div>
+    """,
     unsafe_allow_html=True,
 )
