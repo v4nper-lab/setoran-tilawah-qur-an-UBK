@@ -192,7 +192,7 @@ def get_prayer_times():
 
 timings, readable_date = get_prayer_times()
 
-# 1. Styling CSS dipisah agar aman dari syntax error f-string
+# 1. Styling CSS
 st.markdown(
     """
     <style>
@@ -453,11 +453,9 @@ with tab_pengurus:
 
   admin_pin_rahasia = st.secrets.get("ADMIN_PIN", "1234")
 
-  **Menjadi seperti ini (tanpa `type="password"`):**
-   ```python
-   pin = st.text_input(
-       "PIN Pengurus (Ketik: 1234)", placeholder="Masukkan PIN 1234"
-   )
+  # Input PIN tanpa type="password" agar tidak memunculkan popup sandi Google
+  pin = st.text_input("PIN Pengurus", placeholder="Masukkan PIN 1234")
+
   if st.button("Buka Panel Pengurus"):
     if pin == admin_pin_rahasia:
       st.session_state["admin_logged"] = True
