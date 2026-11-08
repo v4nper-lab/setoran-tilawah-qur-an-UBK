@@ -414,10 +414,10 @@ with tab_pengurus:
 
   pin = st.text_input("PIN Pengurus", type="password")
   if st.button("Buka Panel Pengurus"):
-    if pin == "1234":
+    if pin == "admintilawahUBK":
       st.session_state["admin_logged"] = True
     else:
-      st.error("PIN salah! Gunakan PIN 1234.")
+      st.error("admintilawahUBK.")
       st.session_state["admin_logged"] = False
 
   if st.session_state.get("admin_logged", False):
